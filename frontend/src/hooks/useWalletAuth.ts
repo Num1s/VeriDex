@@ -5,7 +5,7 @@ import { useToast } from './useToast';
 
 export const useWalletAuth = () => {
   const [isAuthenticating, setIsAuthenticating] = useState(false);
-  const [user, setUser] = useState(null);
+  const [user, setUser] = useState<any>(null);
   const [nonce, setNonce] = useState('');
 
   const { address, isConnected } = useAccount();
@@ -19,12 +19,12 @@ export const useWalletAuth = () => {
     const token = localStorage.getItem('autotoken_token');
     if (token) {
       // Verify token and get user data
-      authAPI.verifyToken(token)
-        .then(() => {
+      authAPI.refreshToken(token)
+        .then((response: any) => {
           // Token is valid, get user profile
           return authAPI.getProfile();
         })
-        .then(response => {
+        .then((response: any) => {
           setUser(response.data.data);
         })
         .catch(() => {
@@ -33,6 +33,13 @@ export const useWalletAuth = () => {
         });
     }
   }, []);
+
+  // Auto-generate nonce when wallet is connected but user is not authenticated
+  useEffect(() => {
+    if (isConnected && !user && !nonce) {
+      generateNonce().catch(console.error);
+    }
+  }, [isConnected, user, nonce]);
 
   const generateNonce = async () => {
     if (!address) {
@@ -114,7 +121,7 @@ export const useWalletAuth = () => {
   const connectWallet = async (connectorId?: string) => {
     try {
       if (connectorId) {
-        const connector = connectors.find(c => c.id === connectorId);
+        const connector = connectors.find((c: any) => c.id === connectorId);
         if (connector) {
           await connect({ connector });
         }

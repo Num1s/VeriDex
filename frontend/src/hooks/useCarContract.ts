@@ -110,13 +110,16 @@ export const useCarContract = () => {
 
   const getCarDetails = async (tokenId: bigint) => {
     try {
-      const details = await refetchCarDetails({
+      // Use direct contract read for dynamic calls
+      const { readContract } = await import('wagmi/actions');
+      const { config } = await import('../config/wagmi');
+      const details = await readContract(config, {
         address: getContractAddress('carNFT', 31337),
         abi: getContractABI('carNFT'),
         functionName: 'getCarDetails',
         args: [tokenId],
       });
-      return details.data;
+      return details;
     } catch (error) {
       throw error;
     }
@@ -124,13 +127,15 @@ export const useCarContract = () => {
 
   const getTokenURI = async (tokenId: bigint) => {
     try {
-      const uri = await refetchCarDetails({
+      const { readContract } = await import('wagmi/actions');
+      const { config } = await import('../config/wagmi');
+      const uri = await readContract(config, {
         address: getContractAddress('carNFT', 31337),
         abi: getContractABI('carNFT'),
         functionName: 'tokenURI',
         args: [tokenId],
       });
-      return uri.data;
+      return uri;
     } catch (error) {
       throw error;
     }
@@ -138,13 +143,15 @@ export const useCarContract = () => {
 
   const checkVinExists = async (vin: string) => {
     try {
-      const exists = await refetchCarDetails({
+      const { readContract } = await import('wagmi/actions');
+      const { config } = await import('../config/wagmi');
+      const exists = await readContract(config, {
         address: getContractAddress('carNFT', 31337),
         abi: getContractABI('carNFT'),
         functionName: 'vinExists',
         args: [vin],
       });
-      return exists.data;
+      return exists;
     } catch (error) {
       throw error;
     }

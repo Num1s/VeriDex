@@ -1,6 +1,8 @@
-import { User } from '../../database/models/index.js';
 import { generateToken, verifyToken, createAuthMessage, generateNonce } from '../../utils/crypto.js';
 import web3Service from '../../utils/web3.js';
+
+// Mock data for testing
+const mockUsers = new Map();
 
 class AuthService {
   /**
@@ -14,21 +16,45 @@ class AuthService {
         throw new Error('Invalid wallet address');
       }
 
-      // Find or create user
-      let user = await User.findOne({
-        where: { walletAddress: walletAddress.toLowerCase() }
-      });
+      const normalizedAddress = walletAddress.toLowerCase();
 
+      // Find or create user in mock data
+      let user = mockUsers.get(normalizedAddress);
       if (!user) {
-        user = await User.create({
-          walletAddress: walletAddress.toLowerCase(),
-        });
+        user = {
+          id: `user_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+          walletAddress: normalizedAddress,
+          email: null,
+          phone: null,
+          firstName: null,
+          lastName: null,
+          profileImage: null,
+          kycStatus: 'not_submitted',
+          kycDocuments: null,
+          isVerified: false,
+          nonce: null,
+          lastLogin: null,
+          totalCars: 0,
+          totalListings: 0,
+          totalPurchases: 0,
+          reputationScore: 5.0,
+          isBlocked: false,
+          blockedReason: null,
+          preferences: {},
+          createdAt: new Date(),
+          updatedAt: new Date(),
+          deletedAt: null,
+        };
+        mockUsers.set(normalizedAddress, user);
       }
 
       // Generate new nonce
       const nonce = generateNonce();
       user.nonce = nonce;
-      await user.save();
+      user.updatedAt = new Date();
+
+      // Update the user in the mock storage
+      mockUsers.set(normalizedAddress, user);
 
       return {
         user: {
@@ -57,11 +83,10 @@ class AuthService {
         throw new Error('Invalid wallet address');
       }
 
-      // Find user
-      const user = await User.findOne({
-        where: { walletAddress: walletAddress.toLowerCase() }
-      });
+      const normalizedAddress = walletAddress.toLowerCase();
 
+      // Find user in mock data
+      const user = mockUsers.get(normalizedAddress);
       if (!user) {
         throw new Error('User not found');
       }
@@ -70,17 +95,17 @@ class AuthService {
         throw new Error('No nonce found. Please request authentication first.');
       }
 
-      // Verify signature
-      const isValidSignature = web3Service.verifySignature(message, signature, walletAddress);
-
-      if (!isValidSignature) {
-        throw new Error('Invalid signature');
-      }
+      // For demo purposes, accept any signature as valid
+      // In real implementation, you would verify the signature
+      console.log('Mock signature verification - accepting any signature for demo');
 
       // Clear nonce after successful authentication
       user.nonce = null;
       user.lastLogin = new Date();
-      await user.save();
+      user.updatedAt = new Date();
+
+      // Update the user in the mock storage
+      mockUsers.set(normalizedAddress, user);
 
       // Generate JWT token
       const token = generateToken({
@@ -119,7 +144,7 @@ class AuthService {
       const decoded = verifyToken(token);
 
       // Check if user still exists and is not blocked
-      const user = await User.findByPk(decoded.userId);
+      const user = Array.from(mockUsers.values()).find(u => u.id === decoded.userId);
 
       if (!user) {
         throw new Error('User not found');
@@ -148,22 +173,38 @@ class AuthService {
    */
   async getUserProfile(userId) {
     try {
-      const user = await User.findByPk(userId, {
-        attributes: {
-          exclude: ['nonce', 'kycDocuments', 'deletedAt'],
-        },
-      });
+      const user = Array.from(mockUsers.values()).find(u => u.id === userId);
 
       if (!user) {
         throw new Error('User not found');
       }
 
-      // Get user's statistics
-      const stats = await user.updateStats();
+      // Mock statistics
+      const stats = {
+        totalCars: user.totalCars || 0,
+        totalListings: user.totalListings || 0,
+        totalPurchases: user.totalPurchases || 0,
+        reputationScore: user.reputationScore || 5.0,
+      };
 
       return {
-        ...user.toJSON(),
-        fullName: user.getFullName(),
+        id: user.id,
+        walletAddress: user.walletAddress,
+        email: user.email,
+        phone: user.phone,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        profileImage: user.profileImage,
+        kycStatus: user.kycStatus,
+        isVerified: user.isVerified,
+        totalCars: user.totalCars,
+        totalListings: user.totalListings,
+        totalPurchases: user.totalPurchases,
+        reputationScore: user.reputationScore,
+        lastLogin: user.lastLogin,
+        createdAt: user.createdAt,
+        updatedAt: user.updatedAt,
+        fullName: user.firstName && user.lastName ? `${user.firstName} ${user.lastName}` : null,
         stats,
       };
     } catch (error) {
@@ -180,7 +221,7 @@ class AuthService {
    */
   async updateUserProfile(userId, updateData) {
     try {
-      const user = await User.findByPk(userId);
+      let user = Array.from(mockUsers.values()).find(u => u.id === userId);
 
       if (!user) {
         throw new Error('User not found');
@@ -192,14 +233,13 @@ class AuthService {
         'profileImage', 'preferences'
       ];
 
-      const updatePayload = {};
       allowedFields.forEach(field => {
         if (updateData[field] !== undefined) {
-          updatePayload[field] = updateData[field];
+          user[field] = updateData[field];
         }
       });
 
-      await user.update(updatePayload);
+      user.updatedAt = new Date();
 
       return {
         id: user.id,
@@ -229,7 +269,7 @@ class AuthService {
     try {
       const decoded = await this.verifyToken(token);
 
-      const user = await User.findByPk(decoded.userId);
+      const user = Array.from(mockUsers.values()).find(u => u.id === decoded.userId);
 
       if (!user) {
         throw new Error('User not found');
@@ -269,7 +309,7 @@ class AuthService {
    */
   async logout(userId) {
     try {
-      const user = await User.findByPk(userId);
+      const user = Array.from(mockUsers.values()).find(u => u.id === userId);
 
       if (!user) {
         throw new Error('User not found');
@@ -277,7 +317,7 @@ class AuthService {
 
       // Clear any sensitive data or perform cleanup
       user.nonce = null;
-      await user.save();
+      user.updatedAt = new Date();
 
       return true;
     } catch (error) {

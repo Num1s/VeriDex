@@ -15,7 +15,30 @@ interface WalletConnectProps {
 
 export default function WalletConnect({ showBalance = false, variant = 'default' }: WalletConnectProps) {
   const { address, isConnected } = useAccount();
-  const { user, isAuthenticated } = useWalletAuth();
+  const { user, isAuthenticated, nonce, generateNonce, login, signAuthMessage, isAuthenticating } = useWalletAuth();
+
+  const handleAuth = async () => {
+    if (!address) return;
+
+    try {
+      // Generate nonce if not already generated
+      let currentNonce = nonce;
+      if (!currentNonce) {
+        currentNonce = await generateNonce() || '';
+      }
+
+      // Create message to sign
+      const message = `Welcome to AutoToken!\n\nPlease sign this message to authenticate with your wallet.\n\nNonce: ${currentNonce}\n\nThis signature will be used to verify your identity and will not trigger any blockchain transaction.`;
+
+      // Sign the message
+      const signature = await signAuthMessage(message);
+
+      // Login with signature
+      await login(signature, message);
+    } catch (error) {
+      console.error('Auth error:', error);
+    }
+  };
 
   if (variant === 'compact') {
     return (
@@ -47,18 +70,37 @@ export default function WalletConnect({ showBalance = false, variant = 'default'
                     {chain.name}
                   </Button>
 
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={openAccountModal}
-                    className="flex items-center gap-1"
-                  >
-                    <div className="w-2 h-2 bg-green-500 rounded-full" />
-                    {formatAddress(account.address)}
-                    {showBalance && account.displayBalance && (
-                      <span className="ml-1">({account.displayBalance})</span>
-                    )}
-                  </Button>
+                  {/* Authenticate Button - when wallet connected but not authenticated */}
+                  {isConnected && !isAuthenticated ? (
+                    <Button
+                      onClick={handleAuth}
+                      disabled={isAuthenticating}
+                      size="sm"
+                      className="flex items-center gap-1"
+                    >
+                      {isAuthenticating ? (
+                        <>
+                          <div className="w-3 h-3 border-2 border-gray-600 border-t-transparent rounded-full animate-spin" />
+                          Signing...
+                        </>
+                      ) : (
+                        'Sign In'
+                      )}
+                    </Button>
+                  ) : (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={openAccountModal}
+                      className="flex items-center gap-1"
+                    >
+                      <div className="w-2 h-2 bg-green-500 rounded-full" />
+                      {formatAddress(account.address)}
+                      {showBalance && account.displayBalance && (
+                        <span className="ml-1">({account.displayBalance})</span>
+                      )}
+                    </Button>
+                  )}
                 </div>
               ) : (
                 <Button onClick={openConnectModal} size="sm">
@@ -117,6 +159,25 @@ export default function WalletConnect({ showBalance = false, variant = 'default'
                       </span>
                     )}
                   </Button>
+
+                  {/* Authenticate Button - when wallet connected but not authenticated */}
+                  {isConnected && !isAuthenticated && (
+                    <Button
+                      onClick={handleAuth}
+                      disabled={isAuthenticating}
+                      size="sm"
+                      className="flex items-center gap-2"
+                    >
+                      {isAuthenticating ? (
+                        <>
+                          <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                          Signing...
+                        </>
+                      ) : (
+                        'Sign In'
+                      )}
+                    </Button>
+                  )}
 
                   {/* User Status */}
                   {isAuthenticated && user && (

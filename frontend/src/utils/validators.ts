@@ -53,7 +53,8 @@ export const validateVIN = (vin: string): { valid: boolean; error?: string } => 
     vinSchema.parse(vin);
     return { valid: true };
   } catch (error) {
-    return { valid: false, error: error.errors?.[0]?.message };
+    const zodError = error as { errors?: { message: string }[] };
+    return { valid: false, error: zodError.errors?.[0]?.message };
   }
 };
 
@@ -62,7 +63,8 @@ export const validateAddress = (address: string): { valid: boolean; error?: stri
     addressSchema.parse(address);
     return { valid: true };
   } catch (error) {
-    return { valid: false, error: error.errors?.[0]?.message };
+    const zodError = error as { errors?: { message: string }[] };
+    return { valid: false, error: zodError.errors?.[0]?.message };
   }
 };
 
@@ -71,7 +73,8 @@ export const validatePrice = (price: string): { valid: boolean; error?: string }
     priceSchema.parse(price);
     return { valid: true };
   } catch (error) {
-    return { valid: false, error: error.errors?.[0]?.message };
+    const zodError = error as { errors?: { message: string }[] };
+    return { valid: false, error: zodError.errors?.[0]?.message };
   }
 };
 
@@ -80,7 +83,8 @@ export const validateYear = (year: number): { valid: boolean; error?: string } =
     yearSchema.parse(year);
     return { valid: true };
   } catch (error) {
-    return { valid: false, error: error.errors?.[0]?.message };
+    const zodError = error as { errors?: { message: string }[] };
+    return { valid: false, error: zodError.errors?.[0]?.message };
   }
 };
 
@@ -90,7 +94,8 @@ export const validateCarData = (carData: any): { valid: boolean; errors?: Record
     return { valid: true };
   } catch (error) {
     const errors: Record<string, string> = {};
-    error.errors?.forEach((err: any) => {
+    const zodError = error as { errors?: { message: string; path: string[] }[] };
+    zodError.errors?.forEach((err: any) => {
       const path = err.path.join('.');
       errors[path] = err.message;
     });
@@ -104,7 +109,8 @@ export const validateListingData = (listingData: any): { valid: boolean; errors?
     return { valid: true };
   } catch (error) {
     const errors: Record<string, string> = {};
-    error.errors?.forEach((err: any) => {
+    const zodError = error as { errors?: { message: string; path: string[] }[] };
+    zodError.errors?.forEach((err: any) => {
       const path = err.path.join('.');
       errors[path] = err.message;
     });
@@ -118,7 +124,8 @@ export const validateUserProfile = (profileData: any): { valid: boolean; errors?
     return { valid: true };
   } catch (error) {
     const errors: Record<string, string> = {};
-    error.errors?.forEach((err: any) => {
+    const zodError = error as { errors?: { message: string; path: string[] }[] };
+    zodError.errors?.forEach((err: any) => {
       const path = err.path.join('.');
       errors[path] = err.message;
     });

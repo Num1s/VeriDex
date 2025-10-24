@@ -9,7 +9,8 @@ import { formatEther, formatUnits } from 'viem';
 export const formatEth = (wei: bigint | string | number, decimals: number = 4): string => {
   try {
     const value = typeof wei === 'bigint' ? wei : BigInt(wei);
-    return formatEther(value, decimals);
+    const ethValue = formatEther(value);
+    return parseFloat(ethValue).toFixed(decimals);
   } catch {
     return '0';
   }

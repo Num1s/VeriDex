@@ -350,3 +350,4 @@ This is experimental software. Use at your own risk. Always verify transactions 
 **Built with ❤️ for the future of automotive ownership**
 
 *AutoToken - Making car ownership digital, global, and gas-free.*
+

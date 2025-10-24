@@ -1,12 +1,13 @@
 import { getDefaultConfig } from '@rainbow-me/rainbowkit';
-import { mainnet, sepolia, hardhat } from 'wagmi/chains';
+import { hardhat } from 'wagmi/chains';
 
 export const config = getDefaultConfig({
   appName: 'AutoToken',
   projectId: process.env.NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID || 'demo-project-id',
-  chains: [mainnet, sepolia, hardhat],
+  chains: [hardhat],
   ssr: true, // If your dApp uses server side rendering (SSR)
+  locale: 'en', // Force English locale to avoid chunk loading issues
 });
 
-export const chains = [mainnet, sepolia, hardhat];
+export const chains = [hardhat];
 

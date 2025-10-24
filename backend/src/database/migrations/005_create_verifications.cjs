@@ -6,16 +6,16 @@ module.exports = {
         defaultValue: Sequelize.UUIDV4,
         primaryKey: true,
       },
-      requestId: {
+      request_id: {
         type: Sequelize.BIGINT,
         allowNull: false,
         unique: true,
       },
-      tokenId: {
+      token_id: {
         type: Sequelize.BIGINT,
         allowNull: false,
       },
-      requesterAddress: {
+      requester_address: {
         type: Sequelize.STRING,
         allowNull: false,
       },
@@ -43,43 +43,43 @@ module.exports = {
         type: Sequelize.JSON,
         defaultValue: [],
       },
-      verificationNotes: {
+      verification_notes: {
         type: Sequelize.TEXT,
         allowNull: true,
       },
-      verificationDocuments: {
+      verification_documents: {
         type: Sequelize.JSON,
         defaultValue: [],
       },
-      verificationFee: {
+      verification_fee: {
         type: Sequelize.DECIMAL(36, 18),
         allowNull: true,
       },
-      verifierAddress: {
+      verifier_address: {
         type: Sequelize.STRING,
         allowNull: true,
       },
-      verifiedAt: {
+      verified_at: {
         type: Sequelize.DATE,
         allowNull: true,
       },
-      expiresAt: {
+      expires_at: {
         type: Sequelize.DATE,
         allowNull: true,
       },
-      txHash: {
+      tx_hash: {
         type: Sequelize.STRING,
         allowNull: true,
       },
-      blockchainStatus: {
+      blockchain_status: {
         type: Sequelize.ENUM('pending', 'confirmed', 'failed'),
         defaultValue: 'pending',
       },
-      rejectionReason: {
+      rejection_reason: {
         type: Sequelize.TEXT,
         allowNull: true,
       },
-      additionalInfo: {
+      additional_info: {
         type: Sequelize.JSON,
         defaultValue: {},
       },
@@ -87,19 +87,19 @@ module.exports = {
         type: Sequelize.ENUM('low', 'normal', 'high', 'urgent'),
         defaultValue: 'normal',
       },
-      assignedTo: {
+      assigned_to: {
         type: Sequelize.STRING,
         allowNull: true,
       },
-      estimatedValue: {
+      estimated_value: {
         type: Sequelize.DECIMAL(36, 18),
         allowNull: true,
       },
-      riskScore: {
+      risk_score: {
         type: Sequelize.DECIMAL(3, 2),
         allowNull: true,
       },
-      createdBy: {
+      created_by: {
         type: Sequelize.UUID,
         allowNull: true,
         references: {
@@ -107,7 +107,7 @@ module.exports = {
           key: 'id',
         },
       },
-      updatedBy: {
+      updated_by: {
         type: Sequelize.UUID,
         allowNull: true,
         references: {
@@ -115,27 +115,27 @@ module.exports = {
           key: 'id',
         },
       },
-      createdAt: {
-        type: Sequelize.DATE,
-        allowNull: false,
-      },
-      updatedAt: {
-        type: Sequelize.DATE,
-        allowNull: false,
-      },
-      deletedAt: {
-        type: Sequelize.DATE,
-        allowNull: true,
-      },
+  created_at: {
+    type: Sequelize.DATE,
+    allowNull: false,
+  },
+  updated_at: {
+    type: Sequelize.DATE,
+    allowNull: false,
+  },
+  deleted_at: {
+    type: Sequelize.DATE,
+    allowNull: true,
+  },
     });
 
     // Create indexes
-    await queryInterface.addIndex('Verifications', ['requestId'], {
+    await queryInterface.addIndex('Verifications', ['request_id'], {
       unique: true,
       name: 'verifications_request_id_unique',
     });
 
-    await queryInterface.addIndex('Verifications', ['tokenId'], {
+    await queryInterface.addIndex('Verifications', ['token_id'], {
       name: 'verifications_token_id_idx',
     });
 
@@ -143,19 +143,19 @@ module.exports = {
       name: 'verifications_status_idx',
     });
 
-    await queryInterface.addIndex('Verifications', ['requesterAddress'], {
+    await queryInterface.addIndex('Verifications', ['requester_address'], {
       name: 'verifications_requester_address_idx',
     });
 
-    await queryInterface.addIndex('Verifications', ['verifierAddress'], {
+    await queryInterface.addIndex('Verifications', ['verifier_address'], {
       name: 'verifications_verifier_address_idx',
     });
 
-    await queryInterface.addIndex('Verifications', ['verifiedAt'], {
+    await queryInterface.addIndex('Verifications', ['verified_at'], {
       name: 'verifications_verified_at_idx',
     });
 
-    await queryInterface.addIndex('Verifications', ['expiresAt'], {
+    await queryInterface.addIndex('Verifications', ['expires_at'], {
       name: 'verifications_expires_at_idx',
     });
 

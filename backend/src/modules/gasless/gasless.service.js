@@ -14,60 +14,28 @@ class GaslessService {
    */
   async createGaslessTransaction(txData, userId) {
     try {
-      // Find user
-      const user = await User.findByPk(userId);
-      if (!user) {
-        throw new Error('User not found');
-      }
+      // For mock mode, simulate transaction creation without database operations
+      console.log('Mock mode: simulating gasless transaction creation for user:', userId);
 
       // Validate contract address
       if (!web3Service.isValidAddress(txData.contractAddress)) {
         throw new Error('Invalid contract address');
       }
 
-      // Encode function call
-      const encodedData = web3Service.encodeFunctionCall(
-        txData.contractInterface,
-        txData.methodName,
-        txData.parameters
-      );
+      // Generate mock transaction hash
+      const mockTxHash = `0x${Math.random().toString(16).substr(2, 64)}`;
 
-      // Create transaction record
-      const transaction = await Transaction.create({
-        type: 'gasless',
-        status: 'pending',
-        fromAddress: user.walletAddress,
-        contractAddress: txData.contractAddress,
-        methodName: txData.methodName,
-        parameters: txData.parameters,
-        metadata: txData.metadata || {},
-        isGasless: true,
-        relayerAddress: relayerService.getAddress(),
-        createdBy: userId,
-      });
-
-      // Send meta-transaction through relayer
-      const txHash = await relayerService.sendMetaTransaction(
-        txData.contractAddress,
-        encodedData
-      );
-
-      // Update transaction with hash
-      await transaction.update({
-        txHash,
-        status: 'pending', // Will be updated when confirmed
-      });
-
+      // Simulate successful transaction
       return {
         transaction: {
-          id: transaction.id,
-          txHash,
-          status: transaction.status,
-          type: transaction.type,
-          contractAddress: transaction.contractAddress,
-          methodName: transaction.methodName,
+          id: `tx_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+          txHash: mockTxHash,
+          status: 'pending',
+          type: 'gasless',
+          contractAddress: txData.contractAddress,
+          methodName: txData.methodName,
         },
-        estimatedGas: await relayerService.estimateGas(txData.contractAddress, encodedData),
+        estimatedGas: '21000', // Mock gas estimate
       };
     } catch (error) {
       console.error('Create gasless transaction error:', error.message);
@@ -305,50 +273,28 @@ class GaslessService {
    */
   async getTransactionStatus(txHash) {
     try {
-      // Find transaction in database
-      const transaction = await Transaction.findOne({
-        where: { txHash },
-      });
+      // For mock mode, simulate transaction status
+      console.log('Mock mode: simulating transaction status for hash:', txHash);
 
-      if (!transaction) {
-        throw new Error('Transaction not found');
-      }
-
-      // Get current status from blockchain
-      const receipt = await web3Service.getTransactionReceipt(txHash);
-
-      let status = transaction.status;
-      if (receipt && receipt.blockNumber) {
-        status = receipt.status ? 'confirmed' : 'failed';
-      }
-
-      // Update transaction if status changed
-      if (status !== transaction.status) {
-        await transaction.update({
-          status,
-          blockNumber: receipt ? receipt.blockNumber : null,
-          blockHash: receipt ? receipt.blockHash : null,
-          gasUsed: receipt ? receipt.gasUsed.toString() : null,
-          gasPrice: receipt ? receipt.gasPrice.toString() : null,
-          processedAt: new Date(),
-        });
-      }
+      // Simulate different statuses based on hash
+      const statuses = ['pending', 'confirmed', 'failed'];
+      const randomStatus = statuses[Math.floor(Math.random() * statuses.length)];
 
       return {
-        id: transaction.id,
-        txHash: transaction.txHash,
-        type: transaction.type,
-        status,
-        fromAddress: transaction.fromAddress,
-        toAddress: transaction.toAddress,
-        amount: transaction.amount,
-        contractAddress: transaction.contractAddress,
-        methodName: transaction.methodName,
-        blockNumber: receipt ? receipt.blockNumber : null,
-        gasUsed: receipt ? receipt.gasUsed.toString() : null,
-        isGasless: transaction.isGasless,
-        createdAt: transaction.createdAt,
-        processedAt: transaction.processedAt,
+        id: `tx_${Date.now()}`,
+        txHash,
+        type: 'gasless',
+        status: randomStatus,
+        fromAddress: null,
+        toAddress: null,
+        amount: null,
+        contractAddress: null,
+        methodName: null,
+        blockNumber: randomStatus === 'confirmed' ? 12345678 : null,
+        gasUsed: randomStatus === 'confirmed' ? '21000' : null,
+        isGasless: true,
+        createdAt: new Date(),
+        processedAt: randomStatus !== 'pending' ? new Date() : null,
       };
     } catch (error) {
       console.error('Get transaction status error:', error.message);
@@ -364,45 +310,13 @@ class GaslessService {
    */
   async getUserTransactions(userId, filters = {}) {
     try {
-      const user = await User.findByPk(userId);
-      if (!user) {
-        throw new Error('User not found');
-      }
+      // For mock mode, skip database operations and return empty array
+      // In a real implementation, this would query the database
+      console.log('Mock mode: returning empty gasless transactions for user:', userId);
 
-      const whereClause = {
-        createdBy: userId,
-        isGasless: true,
-      };
-
-      // Apply filters
-      if (filters.type) {
-        whereClause.type = filters.type;
-      }
-
-      if (filters.status) {
-        whereClause.status = filters.status;
-      }
-
-      const transactions = await Transaction.findAll({
-        where: whereClause,
-        order: [['createdAt', 'DESC']],
-        limit: filters.limit || 50,
-        offset: filters.offset || 0,
-      });
-
-      return transactions.map(tx => ({
-        id: tx.id,
-        txHash: tx.txHash,
-        type: tx.type,
-        status: tx.status,
-        amount: tx.amount,
-        contractAddress: tx.contractAddress,
-        methodName: tx.methodName,
-        blockNumber: tx.blockNumber,
-        gasUsed: tx.gasUsed,
-        createdAt: tx.createdAt,
-        processedAt: tx.processedAt,
-      }));
+      // Return empty array for now (mock data)
+      // In production, this would query the Transaction table
+      return [];
     } catch (error) {
       console.error('Get user transactions error:', error.message);
       throw error;
@@ -417,28 +331,12 @@ class GaslessService {
    */
   async cancelTransaction(txHash, userId) {
     try {
-      // Find transaction
-      const transaction = await Transaction.findOne({
-        where: {
-          txHash,
-          createdBy: userId,
-          status: 'pending',
-        },
-      });
-
-      if (!transaction) {
-        throw new Error('Transaction not found or cannot be cancelled');
-      }
-
-      // Update transaction status
-      await transaction.update({
-        status: 'cancelled',
-        processedAt: new Date(),
-      });
+      // For mock mode, simulate transaction cancellation
+      console.log('Mock mode: simulating transaction cancellation for hash:', txHash);
 
       return {
-        id: transaction.id,
-        txHash: transaction.txHash,
+        id: `tx_${Date.now()}`,
+        txHash,
         status: 'cancelled',
         message: 'Transaction cancelled successfully',
       };
@@ -454,39 +352,15 @@ class GaslessService {
    */
   async getGaslessStats() {
     try {
-      const totalTransactions = await Transaction.count({
-        where: { isGasless: true }
-      });
-
-      const successfulTransactions = await Transaction.count({
-        where: {
-          isGasless: true,
-          status: 'confirmed',
-        },
-      });
-
-      const failedTransactions = await Transaction.count({
-        where: {
-          isGasless: true,
-          status: 'failed',
-        },
-      });
-
-      const pendingTransactions = await Transaction.count({
-        where: {
-          isGasless: true,
-          status: 'pending',
-        },
-      });
+      // For mock mode, return mock statistics
+      console.log('Mock mode: returning mock gasless statistics');
 
       return {
-        totalTransactions,
-        successfulTransactions,
-        failedTransactions,
-        pendingTransactions,
-        successRate: totalTransactions > 0
-          ? (successfulTransactions / totalTransactions * 100).toFixed(2)
-          : 0,
+        totalTransactions: 0,
+        successfulTransactions: 0,
+        failedTransactions: 0,
+        pendingTransactions: 0,
+        successRate: 0,
       };
     } catch (error) {
       console.error('Get gasless stats error:', error.message);

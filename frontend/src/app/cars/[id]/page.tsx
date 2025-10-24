@@ -34,6 +34,8 @@ import {
 import Image from 'next/image';
 import Link from 'next/link';
 
+export const dynamic = 'force-dynamic';
+
 export default function CarDetailPage() {
   const params = useParams();
   const router = useRouter();
@@ -51,11 +53,11 @@ export default function CarDetailPage() {
     enabled: !!carId,
   });
 
-  const car = carResponse?.data;
+  const car = carResponse?.data as any; // Car data from API
 
   // Check ownership and listing status
   useEffect(() => {
-    if (car && address) {
+    if (car && address && car.ownerAddress && car.isListed !== undefined) {
       setIsOwner(car.ownerAddress.toLowerCase() === address.toLowerCase());
       setIsListed(car.isListed || false);
     }
@@ -189,7 +191,7 @@ export default function CarDetailPage() {
                 {car.images && car.images.length > 1 && (
                   <div className="p-4 border-t">
                     <div className="flex gap-2 overflow-x-auto">
-                      {car.images.map((image, index) => (
+                      {car.images?.map((image: any, index: number) => (
                         <div key={index} className="relative w-20 h-20 rounded-lg overflow-hidden bg-gray-100 flex-shrink-0">
                           <Image
                             src={image.url}
@@ -321,7 +323,7 @@ export default function CarDetailPage() {
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-2">
-                    {car.documents.map((doc, index) => (
+                    {car.documents?.map((doc: any, index: number) => (
                       <div key={index} className="flex items-center gap-2 p-2 border rounded">
                         <FileText className="w-4 h-4" />
                         <span className="text-sm">{doc.name || `Document ${index + 1}`}</span>

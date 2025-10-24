@@ -48,8 +48,8 @@ export default function ProfilePage() {
     enabled: isAuthenticated,
   });
 
-  const userCars = carsResponse?.data || [];
-  const userListings = listingsResponse?.data || [];
+  const userCars = (carsResponse?.data as unknown as any[]) || [];
+  const userListings = (listingsResponse?.data as unknown as any[]) || [];
 
   // Redirect if not authenticated
   if (!isAuthenticated || !user) {

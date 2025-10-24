@@ -13,6 +13,8 @@ import { useToast } from '../../hooks/useToast';
 import { formatPrice } from '../../utils/formatters';
 import { ShoppingBag, TrendingUp, DollarSign, Users } from 'lucide-react';
 
+export const dynamic = 'force-dynamic';
+
 export default function MarketplacePage() {
   const { isAuthenticated } = useWalletAuth();
   const { purchaseCar } = useGasless();
@@ -31,8 +33,8 @@ export default function MarketplacePage() {
     enabled: true,
   });
 
-  const listings = listingsResponse?.data || [];
-  const stats = statsResponse?.data || {};
+  const listings = (listingsResponse?.data as unknown as any[]) || [];
+  const stats = (statsResponse?.data as unknown as any) || {};
 
   const handlePurchase = async (listing: any) => {
     if (!isAuthenticated) {
@@ -175,3 +177,4 @@ export default function MarketplacePage() {
     </Layout>
   );
 }
+

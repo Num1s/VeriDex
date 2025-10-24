@@ -402,3 +402,4 @@ Blockchain: Linea Mainnet + Status Network
 - **Reporting**: Regulatory reporting capabilities
 
 This architecture provides a robust foundation for a production-ready car tokenization platform with excellent user experience and security.
+

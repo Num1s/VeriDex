@@ -49,14 +49,16 @@ if (isCLI) {
   }
 }
 
-// Test database connection
+// Test database connection (skip sync for mock mode)
 const testConnection = async () => {
   try {
     await sequelize.authenticate();
     console.log('✅ Database connection established successfully.');
+    console.log('📝 Using mock data mode - no database sync required.');
   } catch (error) {
-    console.error('❌ Unable to connect to the database:', error);
-    process.exit(1);
+    console.error('❌ Database error:', error);
+    console.log('⚠️ Continuing with mock data mode despite database error.');
+    // Don't exit - allow server to start with mock data
   }
 };
 

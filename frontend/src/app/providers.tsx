@@ -1,11 +1,11 @@
 'use client';
 
 import '@rainbow-me/rainbowkit/styles.css';
-import { RainbowKitProvider, getDefaultConfig } from '@rainbow-me/rainbowkit';
+import { RainbowKitProvider } from '@rainbow-me/rainbowkit';
 import { WagmiProvider } from 'wagmi';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Toaster } from 'react-hot-toast';
-import { mainnet, sepolia, hardhat } from 'wagmi/chains';
+import { config } from '../config/wagmi';
 
 // Create QueryClient
 const queryClient = new QueryClient({
@@ -19,19 +19,17 @@ const queryClient = new QueryClient({
   },
 });
 
-// Wagmi configuration
-const config = getDefaultConfig({
-  appName: 'AutoToken',
-  projectId: process.env.NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID || 'demo-project-id',
-  chains: [mainnet, sepolia, hardhat],
-  ssr: true,
-});
-
 export default function Providers({ children }: { children: React.ReactNode }) {
   return (
     <WagmiProvider config={config}>
       <QueryClientProvider client={queryClient}>
-        <RainbowKitProvider>
+        <RainbowKitProvider
+          locale="en"
+          onError={(error) => {
+            console.warn('RainbowKit error:', error);
+            // Continue without crashing
+          }}
+        >
           {children}
           <Toaster
             position="top-right"

@@ -31,7 +31,7 @@ type MintFormData = z.infer<typeof mintSchema>;
 
 export default function MintPage() {
   const router = useRouter();
-  const { isAuthenticated, address } = useWalletAuth();
+  const { isAuthenticated, isConnected, address } = useWalletAuth();
   const { mintCar, isMinting } = useGasless();
   const { toast } = useToast();
   const [images, setImages] = useState<File[]>([]);
@@ -49,7 +49,27 @@ export default function MintPage() {
 
   const watchedVin = watch('vin');
 
-  // Redirect if not authenticated
+  // Redirect if wallet not connected
+  if (!isConnected) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <Card className="max-w-md w-full">
+          <CardContent className="p-8 text-center">
+            <Car className="w-16 h-16 mx-auto mb-4 text-gray-400" />
+            <h2 className="text-xl font-semibold mb-2">Wallet Connection Required</h2>
+            <p className="text-gray-600 mb-4">
+              Please connect your wallet to mint a car NFT.
+            </p>
+            <Button onClick={() => router.push('/')}>
+              Go to Homepage
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  // Redirect if not authenticated (wallet connected but not logged in)
   if (!isAuthenticated) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
@@ -58,7 +78,7 @@ export default function MintPage() {
             <Car className="w-16 h-16 mx-auto mb-4 text-gray-400" />
             <h2 className="text-xl font-semibold mb-2">Authentication Required</h2>
             <p className="text-gray-600 mb-4">
-              Please connect your wallet to mint a car NFT.
+              Your wallet is connected, but you need to sign in to the application to mint a car NFT.
             </p>
             <Button onClick={() => router.push('/')}>
               Go to Homepage

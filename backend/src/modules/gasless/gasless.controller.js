@@ -125,7 +125,7 @@ class GaslessController {
    */
   async getUserTransactions(req, res, next) {
     try {
-      const { userId } = req.user;
+      const { userId } = req.user || {};
       const {
         type,
         status,
@@ -138,7 +138,17 @@ class GaslessController {
         status,
         limit: parseInt(limit),
         offset: parseInt(offset),
+        isGasless: true, // Only get gasless transactions
       };
+
+      // If no user is authenticated, return empty array
+      if (!userId) {
+        return res.status(200).json({
+          success: true,
+          message: 'No authenticated user - returning empty transactions',
+          data: [],
+        });
+      }
 
       const transactions = await gaslessService.getUserTransactions(userId, filters);
 

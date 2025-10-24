@@ -6,7 +6,7 @@ module.exports = {
         defaultValue: Sequelize.UUIDV4,
         primaryKey: true,
       },
-      walletAddress: {
+      wallet_address: {
         type: Sequelize.STRING,
         allowNull: false,
         unique: true,
@@ -20,27 +20,27 @@ module.exports = {
         type: Sequelize.STRING,
         allowNull: true,
       },
-      firstName: {
+      first_name: {
         type: Sequelize.STRING,
         allowNull: true,
       },
-      lastName: {
+      last_name: {
         type: Sequelize.STRING,
         allowNull: true,
       },
-      profileImage: {
+      profile_image: {
         type: Sequelize.STRING,
         allowNull: true,
       },
-      kycStatus: {
+      kyc_status: {
         type: Sequelize.ENUM('pending', 'approved', 'rejected', 'not_submitted'),
         defaultValue: 'not_submitted',
       },
-      kycDocuments: {
+      kyc_documents: {
         type: Sequelize.JSON,
         allowNull: true,
       },
-      isVerified: {
+      is_verified: {
         type: Sequelize.BOOLEAN,
         defaultValue: false,
       },
@@ -48,31 +48,31 @@ module.exports = {
         type: Sequelize.STRING,
         allowNull: true,
       },
-      lastLogin: {
+      last_login: {
         type: Sequelize.DATE,
         allowNull: true,
       },
-      totalCars: {
+      total_cars: {
         type: Sequelize.INTEGER,
         defaultValue: 0,
       },
-      totalListings: {
+      total_listings: {
         type: Sequelize.INTEGER,
         defaultValue: 0,
       },
-      totalPurchases: {
+      total_purchases: {
         type: Sequelize.INTEGER,
         defaultValue: 0,
       },
-      reputationScore: {
+      reputation_score: {
         type: Sequelize.DECIMAL(3, 2),
         defaultValue: 5.00,
       },
-      isBlocked: {
+      is_blocked: {
         type: Sequelize.BOOLEAN,
         defaultValue: false,
       },
-      blockedReason: {
+      blocked_reason: {
         type: Sequelize.TEXT,
         allowNull: true,
       },
@@ -80,22 +80,22 @@ module.exports = {
         type: Sequelize.JSON,
         defaultValue: {},
       },
-      createdAt: {
+      created_at: {
         type: Sequelize.DATE,
         allowNull: false,
       },
-      updatedAt: {
+      updated_at: {
         type: Sequelize.DATE,
         allowNull: false,
       },
-      deletedAt: {
+      deleted_at: {
         type: Sequelize.DATE,
         allowNull: true,
       },
     });
 
     // Create indexes
-    await queryInterface.addIndex('Users', ['walletAddress'], {
+    await queryInterface.addIndex('Users', ['wallet_address'], {
       unique: true,
       name: 'users_wallet_address_unique',
     });
@@ -105,15 +105,15 @@ module.exports = {
       name: 'users_email_unique',
     });
 
-    await queryInterface.addIndex('Users', ['kycStatus'], {
+    await queryInterface.addIndex('Users', ['kyc_status'], {
       name: 'users_kyc_status_idx',
     });
 
-    await queryInterface.addIndex('Users', ['isVerified'], {
+    await queryInterface.addIndex('Users', ['is_verified'], {
       name: 'users_verified_idx',
     });
 
-    await queryInterface.addIndex('Users', ['isBlocked'], {
+    await queryInterface.addIndex('Users', ['is_blocked'], {
       name: 'users_blocked_idx',
     });
   },

@@ -110,13 +110,15 @@ export const useMarketplace = () => {
 
   const getListing = async (listingId: bigint) => {
     try {
-      const listing = await refetchListing({
+      const { readContract } = await import('wagmi/actions');
+      const { config } = await import('../config/wagmi');
+      const listing = await readContract(config, {
         address: getContractAddress('marketplace', 31337),
         abi: getContractABI('marketplace'),
         functionName: 'getListing',
         args: [listingId],
       });
-      return listing.data;
+      return listing;
     } catch (error) {
       throw error;
     }
@@ -124,13 +126,15 @@ export const useMarketplace = () => {
 
   const getActiveListings = async () => {
     try {
-      const listings = await refetchActiveListings({
+      const { readContract } = await import('wagmi/actions');
+      const { config } = await import('../config/wagmi');
+      const listings = await readContract(config, {
         address: getContractAddress('marketplace', 31337),
         abi: getContractABI('marketplace'),
         functionName: 'getActiveListings',
         args: [],
       });
-      return listings.data;
+      return listings;
     } catch (error) {
       throw error;
     }

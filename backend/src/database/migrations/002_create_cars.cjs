@@ -6,12 +6,12 @@ module.exports = {
         defaultValue: Sequelize.UUIDV4,
         primaryKey: true,
       },
-      tokenId: {
+      token_id: {
         type: Sequelize.BIGINT,
         allowNull: true,
         unique: true,
       },
-      ownerAddress: {
+      owner_address: {
         type: Sequelize.STRING,
         allowNull: false,
       },
@@ -39,7 +39,7 @@ module.exports = {
         type: Sequelize.INTEGER,
         allowNull: true,
       },
-      engineType: {
+      engine_type: {
         type: Sequelize.STRING,
         allowNull: true,
       },
@@ -47,7 +47,7 @@ module.exports = {
         type: Sequelize.STRING,
         allowNull: true,
       },
-      fuelType: {
+      fuel_type: {
         type: Sequelize.STRING,
         allowNull: true,
       },
@@ -55,7 +55,7 @@ module.exports = {
         type: Sequelize.TEXT,
         allowNull: true,
       },
-      metadataURI: {
+      metadata_uri: {
         type: Sequelize.STRING,
         allowNull: true,
       },
@@ -67,43 +67,43 @@ module.exports = {
         type: Sequelize.JSON,
         defaultValue: [],
       },
-      verificationStatus: {
+      verification_status: {
         type: Sequelize.ENUM('pending', 'approved', 'rejected'),
         defaultValue: 'pending',
       },
-      verificationNotes: {
+      verification_notes: {
         type: Sequelize.TEXT,
         allowNull: true,
       },
-      verifiedBy: {
+      verified_by: {
         type: Sequelize.STRING,
         allowNull: true,
       },
-      verifiedAt: {
+      verified_at: {
         type: Sequelize.DATE,
         allowNull: true,
       },
-      isListed: {
+      is_listed: {
         type: Sequelize.BOOLEAN,
         defaultValue: false,
       },
-      listingPrice: {
+      listing_price: {
         type: Sequelize.DECIMAL(36, 18),
         allowNull: true,
       },
-      listingId: {
+      listing_id: {
         type: Sequelize.BIGINT,
         allowNull: true,
       },
-      isEscrow: {
+      is_escrow: {
         type: Sequelize.BOOLEAN,
         defaultValue: false,
       },
-      escrowDealId: {
+      escrow_deal_id: {
         type: Sequelize.BIGINT,
         allowNull: true,
       },
-      createdBy: {
+      created_by: {
         type: Sequelize.UUID,
         allowNull: true,
         references: {
@@ -111,7 +111,7 @@ module.exports = {
           key: 'id',
         },
       },
-      updatedBy: {
+      updated_by: {
         type: Sequelize.UUID,
         allowNull: true,
         references: {
@@ -119,22 +119,22 @@ module.exports = {
           key: 'id',
         },
       },
-      createdAt: {
-        type: Sequelize.DATE,
-        allowNull: false,
-      },
-      updatedAt: {
-        type: Sequelize.DATE,
-        allowNull: false,
-      },
-      deletedAt: {
-        type: Sequelize.DATE,
-        allowNull: true,
-      },
+  created_at: {
+    type: Sequelize.DATE,
+    allowNull: false,
+  },
+  updated_at: {
+    type: Sequelize.DATE,
+    allowNull: false,
+  },
+  deleted_at: {
+    type: Sequelize.DATE,
+    allowNull: true,
+  },
     });
 
     // Create indexes
-    await queryInterface.addIndex('Cars', ['tokenId'], {
+    await queryInterface.addIndex('Cars', ['token_id'], {
       unique: true,
       name: 'cars_token_id_unique',
     });
@@ -144,15 +144,15 @@ module.exports = {
       name: 'cars_vin_unique',
     });
 
-    await queryInterface.addIndex('Cars', ['ownerAddress'], {
+    await queryInterface.addIndex('Cars', ['owner_address'], {
       name: 'cars_owner_address_idx',
     });
 
-    await queryInterface.addIndex('Cars', ['verificationStatus'], {
+    await queryInterface.addIndex('Cars', ['verification_status'], {
       name: 'cars_verification_status_idx',
     });
 
-    await queryInterface.addIndex('Cars', ['isListed'], {
+    await queryInterface.addIndex('Cars', ['is_listed'], {
       name: 'cars_listed_idx',
     });
 

@@ -6,16 +6,16 @@ module.exports = {
         defaultValue: Sequelize.UUIDV4,
         primaryKey: true,
       },
-      listingId: {
+      listing_id: {
         type: Sequelize.BIGINT,
         allowNull: false,
         unique: true,
       },
-      tokenId: {
+      token_id: {
         type: Sequelize.BIGINT,
         allowNull: false,
       },
-      sellerAddress: {
+      seller_address: {
         type: Sequelize.STRING,
         allowNull: false,
       },
@@ -55,43 +55,43 @@ module.exports = {
         type: Sequelize.STRING,
         allowNull: true,
       },
-      expiresAt: {
-        type: Sequelize.DATE,
-        allowNull: true,
-      },
-      soldAt: {
-        type: Sequelize.DATE,
-        allowNull: true,
-      },
-      soldTo: {
+  expires_at: {
+    type: Sequelize.DATE,
+    allowNull: true,
+  },
+  sold_at: {
+    type: Sequelize.DATE,
+    allowNull: true,
+  },
+  sold_to: {
+    type: Sequelize.STRING,
+    allowNull: true,
+  },
+  platform_fee: {
+    type: Sequelize.DECIMAL(36, 18),
+    allowNull: true,
+  },
+  net_amount: {
+    type: Sequelize.DECIMAL(36, 18),
+    allowNull: true,
+  },
+  is_escrow: {
+    type: Sequelize.BOOLEAN,
+    defaultValue: false,
+  },
+  escrow_deal_id: {
+    type: Sequelize.BIGINT,
+    allowNull: true,
+  },
+      tx_hash: {
         type: Sequelize.STRING,
         allowNull: true,
       },
-      platformFee: {
-        type: Sequelize.DECIMAL(36, 18),
-        allowNull: true,
-      },
-      netAmount: {
-        type: Sequelize.DECIMAL(36, 18),
-        allowNull: true,
-      },
-      isEscrow: {
-        type: Sequelize.BOOLEAN,
-        defaultValue: false,
-      },
-      escrowDealId: {
-        type: Sequelize.BIGINT,
-        allowNull: true,
-      },
-      txHash: {
-        type: Sequelize.STRING,
-        allowNull: true,
-      },
-      blockchainStatus: {
+      blockchain_status: {
         type: Sequelize.ENUM('pending', 'confirmed', 'failed'),
         defaultValue: 'pending',
       },
-      createdBy: {
+      created_by: {
         type: Sequelize.UUID,
         allowNull: true,
         references: {
@@ -99,7 +99,7 @@ module.exports = {
           key: 'id',
         },
       },
-      updatedBy: {
+      updated_by: {
         type: Sequelize.UUID,
         allowNull: true,
         references: {
@@ -107,31 +107,31 @@ module.exports = {
           key: 'id',
         },
       },
-      createdAt: {
-        type: Sequelize.DATE,
-        allowNull: false,
-      },
-      updatedAt: {
-        type: Sequelize.DATE,
-        allowNull: false,
-      },
-      deletedAt: {
-        type: Sequelize.DATE,
-        allowNull: true,
-      },
+  created_at: {
+    type: Sequelize.DATE,
+    allowNull: false,
+  },
+  updated_at: {
+    type: Sequelize.DATE,
+    allowNull: false,
+  },
+  deleted_at: {
+    type: Sequelize.DATE,
+    allowNull: true,
+  },
     });
 
     // Create indexes
-    await queryInterface.addIndex('Listings', ['listingId'], {
+    await queryInterface.addIndex('Listings', ['listing_id'], {
       unique: true,
       name: 'listings_listing_id_unique',
     });
 
-    await queryInterface.addIndex('Listings', ['tokenId'], {
+    await queryInterface.addIndex('Listings', ['token_id'], {
       name: 'listings_token_id_idx',
     });
 
-    await queryInterface.addIndex('Listings', ['sellerAddress'], {
+    await queryInterface.addIndex('Listings', ['seller_address'], {
       name: 'listings_seller_address_idx',
     });
 
@@ -143,11 +143,11 @@ module.exports = {
       name: 'listings_price_idx',
     });
 
-    await queryInterface.addIndex('Listings', ['createdAt'], {
+    await queryInterface.addIndex('Listings', ['created_at'], {
       name: 'listings_created_at_idx',
     });
 
-    await queryInterface.addIndex('Listings', ['expiresAt'], {
+    await queryInterface.addIndex('Listings', ['expires_at'], {
       name: 'listings_expires_at_idx',
     });
   },

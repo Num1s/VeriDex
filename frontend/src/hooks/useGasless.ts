@@ -155,7 +155,7 @@ export const useGasless = () => {
     isPurchasing: purchaseCarMutation.isPending,
 
     // Transactions
-    transactions: transactions?.data || [],
+    transactions: (transactions?.data as unknown as any[]) || [],
     transactionsLoading,
 
     // Transaction management

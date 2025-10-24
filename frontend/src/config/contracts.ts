@@ -12,11 +12,11 @@ export const CONTRACT_ADDRESSES = {
   },
   // Sepolia
   11155111: {
-    carNFT: '0x0000000000000000000000000000000000000000' as Address,
-    marketplace: '0x0000000000000000000000000000000000000000' as Address,
-    escrow: '0x0000000000000000000000000000000000000000' as Address,
-    verifierOracle: '0x0000000000000000000000000000000000000000' as Address,
-    trustedForwarder: '0x0000000000000000000000000000000000000000' as Address,
+    carNFT: '0x02e8910B3B89690d4aeC9fcC0Ae2cD16fB6A4828' as Address,
+    marketplace: '0x9abb5861e3a1eDF19C51F8Ac74A81782e94F8FdC' as Address,
+    escrow: '0x564Db7a11653228164FD03BcA60465270E67b3d7' as Address,
+    verifierOracle: '0x484242986F57dFcA98EeC2C78427931C63F1C4ce' as Address,
+    trustedForwarder: '0x084815D1330eCC3eF94193a19Ec222C0C73dFf2d' as Address,
   },
   // Linea Testnet
   59140: {
@@ -211,7 +211,7 @@ export const VERIFIER_ORACLE_ABI = [
 
 // Helper function to get contract addresses for current chain
 export const getContractAddresses = (chainId: number) => {
-  return CONTRACT_ADDRESSES[chainId] || CONTRACT_ADDRESSES[31337]; // Default to hardhat
+  return (CONTRACT_ADDRESSES as any)[chainId] || (CONTRACT_ADDRESSES as any)[31337]; // Default to hardhat
 };
 
 // Helper function to get contract address

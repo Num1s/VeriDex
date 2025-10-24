@@ -6,7 +6,7 @@ module.exports = {
         defaultValue: Sequelize.UUIDV4,
         primaryKey: true,
       },
-      txHash: {
+      tx_hash: {
         type: Sequelize.STRING,
         allowNull: false,
         unique: true,
@@ -19,11 +19,11 @@ module.exports = {
         type: Sequelize.ENUM('pending', 'confirmed', 'failed', 'cancelled'),
         defaultValue: 'pending',
       },
-      fromAddress: {
+      from_address: {
         type: Sequelize.STRING,
         allowNull: true,
       },
-      toAddress: {
+      to_address: {
         type: Sequelize.STRING,
         allowNull: true,
       },
@@ -31,31 +31,31 @@ module.exports = {
         type: Sequelize.DECIMAL(36, 18),
         allowNull: true,
       },
-      gasUsed: {
+      gas_used: {
         type: Sequelize.BIGINT,
         allowNull: true,
       },
-      gasPrice: {
+      gas_price: {
         type: Sequelize.DECIMAL(36, 18),
         allowNull: true,
       },
-      tokenId: {
+      token_id: {
         type: Sequelize.BIGINT,
         allowNull: true,
       },
-      listingId: {
+      listing_id: {
         type: Sequelize.BIGINT,
         allowNull: true,
       },
-      escrowDealId: {
+      escrow_deal_id: {
         type: Sequelize.BIGINT,
         allowNull: true,
       },
-      contractAddress: {
+      contract_address: {
         type: Sequelize.STRING,
         allowNull: true,
       },
-      methodName: {
+      method_name: {
         type: Sequelize.STRING,
         allowNull: true,
       },
@@ -67,27 +67,27 @@ module.exports = {
         type: Sequelize.TEXT,
         allowNull: true,
       },
-      blockNumber: {
+      block_number: {
         type: Sequelize.BIGINT,
         allowNull: true,
       },
-      blockHash: {
+      block_hash: {
         type: Sequelize.STRING,
         allowNull: true,
       },
-      confirmationCount: {
+      confirmation_count: {
         type: Sequelize.INTEGER,
         defaultValue: 0,
       },
-      isGasless: {
+      is_gasless: {
         type: Sequelize.BOOLEAN,
         defaultValue: false,
       },
-      relayerAddress: {
+      relayer_address: {
         type: Sequelize.STRING,
         allowNull: true,
       },
-      userSignature: {
+      user_signature: {
         type: Sequelize.TEXT,
         allowNull: true,
       },
@@ -99,7 +99,7 @@ module.exports = {
         type: Sequelize.STRING,
         defaultValue: 'linea',
       },
-      chainId: {
+      chain_id: {
         type: Sequelize.INTEGER,
         defaultValue: 59140,
       },
@@ -107,11 +107,11 @@ module.exports = {
         type: Sequelize.JSON,
         defaultValue: {},
       },
-      processedAt: {
+      processed_at: {
         type: Sequelize.DATE,
         allowNull: true,
       },
-      createdBy: {
+      created_by: {
         type: Sequelize.UUID,
         allowNull: true,
         references: {
@@ -119,22 +119,22 @@ module.exports = {
           key: 'id',
         },
       },
-      createdAt: {
-        type: Sequelize.DATE,
-        allowNull: false,
-      },
-      updatedAt: {
-        type: Sequelize.DATE,
-        allowNull: false,
-      },
-      deletedAt: {
-        type: Sequelize.DATE,
-        allowNull: true,
-      },
+  created_at: {
+    type: Sequelize.DATE,
+    allowNull: false,
+  },
+  updated_at: {
+    type: Sequelize.DATE,
+    allowNull: false,
+  },
+  deleted_at: {
+    type: Sequelize.DATE,
+    allowNull: true,
+  },
     });
 
     // Create indexes
-    await queryInterface.addIndex('Transactions', ['txHash'], {
+    await queryInterface.addIndex('Transactions', ['tx_hash'], {
       unique: true,
       name: 'transactions_tx_hash_unique',
     });
@@ -147,27 +147,27 @@ module.exports = {
       name: 'transactions_status_idx',
     });
 
-    await queryInterface.addIndex('Transactions', ['fromAddress'], {
+    await queryInterface.addIndex('Transactions', ['from_address'], {
       name: 'transactions_from_address_idx',
     });
 
-    await queryInterface.addIndex('Transactions', ['toAddress'], {
+    await queryInterface.addIndex('Transactions', ['to_address'], {
       name: 'transactions_to_address_idx',
     });
 
-    await queryInterface.addIndex('Transactions', ['tokenId'], {
+    await queryInterface.addIndex('Transactions', ['token_id'], {
       name: 'transactions_token_id_idx',
     });
 
-    await queryInterface.addIndex('Transactions', ['listingId'], {
+    await queryInterface.addIndex('Transactions', ['listing_id'], {
       name: 'transactions_listing_id_idx',
     });
 
-    await queryInterface.addIndex('Transactions', ['blockNumber'], {
+    await queryInterface.addIndex('Transactions', ['block_number'], {
       name: 'transactions_block_number_idx',
     });
 
-    await queryInterface.addIndex('Transactions', ['createdAt'], {
+    await queryInterface.addIndex('Transactions', ['created_at'], {
       name: 'transactions_created_at_idx',
     });
   },

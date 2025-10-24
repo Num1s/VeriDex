@@ -32,7 +32,7 @@ export default function HomePage() {
     enabled: true,
   });
 
-  const listings = listingsResponse?.data || [];
+  const listings = (listingsResponse?.data as unknown as any[]) || [];
   const totalListings = listings.length;
 
   const handleFilterChange = (key: string, value: string) => {
