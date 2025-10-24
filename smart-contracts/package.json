@@ -1,0 +1,33 @@
+{
+  "name": "smart-contracts",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "compile": "hardhat compile",
+    "test": "hardhat test",
+    "test:gas": "REPORT_GAS=true hardhat test",
+    "coverage": "hardhat coverage",
+    "deploy:localhost": "hardhat run scripts/deploy_all.js --network localhost",
+    "deploy:linea": "hardhat run scripts/deploy_all.js --network linea_testnet",
+    "deploy:status": "hardhat run scripts/deploy_all.js --network status_network",
+    "verify:linea": "hardhat run scripts/verify_contracts.js --network linea_testnet",
+    "verify:status": "hardhat run scripts/verify_contracts.js --network status_network"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@nomiclabs/hardhat-ethers": "2.2.3",
+    "@nomiclabs/hardhat-etherscan": "^3.1.8",
+    "chai": "^4.3.10",
+    "ethers": "5.7.2",
+    "hardhat": "2.22.0"
+  },
+  "dependencies": {
+    "@openzeppelin/contracts": "^4.9.3"
+  }
+}
