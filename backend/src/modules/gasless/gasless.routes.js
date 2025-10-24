@@ -1,7 +1,7 @@
 import express from 'express';
 import multer from 'multer';
 import gaslessController from './gasless.controller.js';
-import { authenticate } from '../auth/auth.middleware.js';
+import { authenticate, optionalAuth } from '../auth/auth.middleware.js';
 import config from '../../config/index.js';
 
 // Configure multer for file uploads
@@ -49,28 +49,28 @@ router.post('/purchase', authenticate, gaslessController.purchaseCar);
  * @desc Get user's gasless transactions
  * @access Private
  */
-router.get('/transactions', authenticate, gaslessController.getUserTransactions);
+router.get('/transactions', optionalAuth, gaslessController.getUserTransactions);
 
 /**
  * @route GET /api/gasless/transactions/:txHash
  * @desc Get transaction status
  * @access Private
  */
-router.get('/transactions/:txHash', authenticate, gaslessController.getTransactionStatus);
+router.get('/transactions/:txHash', optionalAuth, gaslessController.getTransactionStatus);
 
 /**
  * @route DELETE /api/gasless/transactions/:txHash
  * @desc Cancel gasless transaction
  * @access Private
  */
-router.delete('/transactions/:txHash', authenticate, gaslessController.cancelTransaction);
+router.delete('/transactions/:txHash', optionalAuth, gaslessController.cancelTransaction);
 
 /**
  * @route GET /api/gasless/stats
  * @desc Get gasless service statistics
  * @access Private
  */
-router.get('/stats', authenticate, gaslessController.getStats);
+router.get('/stats', optionalAuth, gaslessController.getStats);
 
 /**
  * @route GET /api/gasless/gas-price

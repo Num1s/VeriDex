@@ -1,5 +1,6 @@
 import { DataTypes } from 'sequelize';
-import { sequelize } from '../../config/db.config.js';
+import db from '../../config/db.config.cjs';
+const { sequelize } = db;
 
 const Transaction = sequelize.define('Transaction', {
   id: {

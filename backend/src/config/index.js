@@ -12,10 +12,10 @@ const config = {
   database: {
     host: process.env.DB_HOST || 'localhost',
     port: parseInt(process.env.DB_PORT) || 5432,
-    name: process.env.DB_NAME || 'autotoken',
+    name: process.env.DB_NAME || 'autotoken.db',
     user: process.env.DB_USER || 'postgres',
     password: process.env.DB_PASSWORD || 'password',
-    dialect: process.env.DB_DIALECT || 'postgres',
+    dialect: process.env.DB_DIALECT || 'sqlite',
     logging: process.env.NODE_ENV === 'development' ? console.log : false,
   },
 
@@ -69,7 +69,9 @@ const config = {
 
   // CORS Configuration
   cors: {
-    origin: process.env.FRONTEND_URL || 'http://localhost:3000',
+    origin: process.env.NODE_ENV === 'production'
+      ? process.env.FRONTEND_URL || 'http://localhost:3000'
+      : ['http://localhost:3000', 'http://localhost:3001', 'http://localhost:3002', 'http://localhost:3003'],
     credentials: true,
   },
 

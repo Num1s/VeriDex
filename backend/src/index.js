@@ -5,9 +5,12 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 
 import config from './config/index.js';
-import { testConnection } from './config/db.config.js';
 import ipfsService from './config/ipfs.config.js';
 import relayerService from './config/relayer.config.js';
+
+// Dynamic import for CommonJS module
+const db = await import('./config/db.config.cjs');
+const { testConnection } = db;
 
 // Import route modules
 import authRoutes from './modules/auth/auth.routes.js';
@@ -65,7 +68,7 @@ app.use('/api/marketplace', marketplaceRoutes);
 app.use('/api/gasless', gaslessRoutes);
 
 // 404 handler
-app.use('*', (req, res) => {
+app.use((req, res) => {
   res.status(404).json({
     success: false,
     message: 'API endpoint not found',

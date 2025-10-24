@@ -16,7 +16,14 @@
     "lint:fix": "eslint src/**/*.js --fix",
     "format": "prettier --write src/**/*.js"
   },
-  "keywords": ["blockchain", "rwa", "nft", "automotive", "ethereum", "gasless"],
+  "keywords": [
+    "blockchain",
+    "rwa",
+    "nft",
+    "automotive",
+    "ethereum",
+    "gasless"
+  ],
   "author": "AutoToken Team",
   "license": "MIT",
   "engines": {
@@ -31,12 +38,14 @@
     "dotenv": "^17.2.3",
     "ethers": "^5.8.0",
     "express": "^5.1.0",
+    "express-rate-limit": "^8.1.0",
     "helmet": "^8.1.0",
     "jsonwebtoken": "^9.0.2",
     "multer": "^2.0.2",
     "pg": "^8.16.3",
     "redis": "^5.9.0",
     "sequelize": "^6.37.7",
+    "sqlite3": "^5.1.7",
     "web3": "^4.16.0"
   },
   "devDependencies": {

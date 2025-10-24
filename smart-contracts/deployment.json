@@ -1,0 +1,15 @@
+{
+  "network": "localhost",
+  "deployer": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+  "treasury": "0x70997970C51812dc3A010C7d01b50e0d17dc79C8",
+  "verifier": "0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC",
+  "contracts": {
+    "GaslessMetaTx": "0x876939152C56362e17D508B9DEA77a3fDF9e4083",
+    "Roles": "0xD56e6F296352B03C3c3386543185E9B8c2e5Fd0b",
+    "CarNFT": "0xEC7cb8C3EBE77BA6d284F13296bb1372A8522c5F",
+    "Escrow": "0x3C2BafebbB0c8c58f39A976e725cD20D611d01e9",
+    "Marketplace": "0x5f246ADDCF057E0f778CD422e20e413be70f9a0c",
+    "VerifierOracle": "0xaD82Ecf79e232B0391C5479C7f632aA1EA701Ed1"
+  },
+  "timestamp": "2025-10-24T19:13:19.490Z"
+}

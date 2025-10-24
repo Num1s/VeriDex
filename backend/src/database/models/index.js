@@ -1,4 +1,5 @@
-import { sequelize } from '../../config/db.config.js';
+import db from '../../config/db.config.cjs';
+const { sequelize } = db;
 
 // Import models
 import User from './User.js';
@@ -49,6 +50,13 @@ Car.hasMany(Transaction, {
 Listing.belongsTo(User, {
   foreignKey: 'createdBy',
   as: 'creator',
+});
+
+Listing.belongsTo(Car, {
+  foreignKey: 'tokenId',
+  targetKey: 'tokenId',
+  as: 'car',
+  constraints: false, // Disable foreign key constraint since tokenId is not primary key
 });
 
 Listing.hasMany(Transaction, {

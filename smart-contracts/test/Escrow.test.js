@@ -1,8 +1,6 @@
 const { expect } = require("chai");
 const { ethers } = require("hardhat");
 
-require("@nomicfoundation/hardhat-chai-matchers");
-
 describe("Escrow", function () {
   let escrow, carNFT;
   let owner, seller, buyer, verifier, admin;

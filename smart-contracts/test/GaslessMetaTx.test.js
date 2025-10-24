@@ -1,8 +1,6 @@
 const { expect } = require("chai");
 const { ethers } = require("hardhat");
 
-require("@nomicfoundation/hardhat-chai-matchers");
-
 describe("GaslessMetaTx", function () {
   let gaslessMetaTx, owner, user1, user2;
   let trustedForwarder;

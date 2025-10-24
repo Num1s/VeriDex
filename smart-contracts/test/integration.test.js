@@ -1,8 +1,6 @@
 const { expect } = require("chai");
 const { ethers } = require("hardhat");
 
-require("@nomicfoundation/hardhat-chai-matchers");
-
 describe("AutoToken Integration", function () {
   let carNFT, marketplace, escrow, verifierOracle, roles;
   let owner, admin, verifier, seller, buyer, treasury;
