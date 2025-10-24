@@ -168,3 +168,4 @@ export default {
     await queryInterface.dropTable('Verifications');
   },
 };
+

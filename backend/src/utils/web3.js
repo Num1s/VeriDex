@@ -206,3 +206,4 @@ class Web3Service {
 const web3Service = new Web3Service();
 
 export default web3Service;
+

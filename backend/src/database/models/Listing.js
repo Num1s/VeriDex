@@ -171,3 +171,4 @@ Listing.prototype.calculateFees = function() {
 };
 
 export default Listing;
+

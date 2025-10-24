@@ -156,3 +156,4 @@ export default {
     await queryInterface.dropTable('Listings');
   },
 };
+

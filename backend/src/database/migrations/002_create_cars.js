@@ -169,3 +169,4 @@ export default {
     await queryInterface.dropTable('Cars');
   },
 };
+

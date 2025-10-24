@@ -176,3 +176,4 @@ export default {
     await queryInterface.dropTable('Transactions');
   },
 };
+

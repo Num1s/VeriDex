@@ -6,3 +6,4 @@ module.exports = {
   'migrations-path': path.resolve('src', 'database', 'migrations'),
   'seeders-path': path.resolve('src', 'database', 'seeds'),
 };
+

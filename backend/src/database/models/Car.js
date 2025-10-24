@@ -181,3 +181,4 @@ Car.prototype.canBeListed = function() {
 };
 
 export default Car;
+

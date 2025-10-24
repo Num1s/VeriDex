@@ -123,3 +123,4 @@ export const verifyHash = async (data, hash) => {
     return false;
   }
 };
+

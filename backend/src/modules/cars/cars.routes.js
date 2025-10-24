@@ -87,3 +87,4 @@ router.put('/:id', authenticate, carsController.updateCar);
 router.post('/upload', authenticate, upload.array('images', 10), carsController.uploadImages);
 
 export default router;
+

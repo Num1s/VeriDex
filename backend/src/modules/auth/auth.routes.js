@@ -60,3 +60,4 @@ router.get('/verify', authenticate, (req, res) => {
 });
 
 export default router;
+

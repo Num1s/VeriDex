@@ -197,3 +197,4 @@ Transaction.prototype.getExplorerUrl = function() {
 };
 
 export default Transaction;
+

@@ -68,3 +68,4 @@ router.get('/my-listings', authenticate, marketplaceController.getUserListings);
 router.get('/stats', optionalAuth, marketplaceController.getStats);
 
 export default router;
+

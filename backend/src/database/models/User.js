@@ -128,3 +128,4 @@ User.prototype.updateStats = async function() {
 };
 
 export default User;
+

@@ -196,3 +196,4 @@ Verification.prototype.getTimeRemaining = function() {
 };
 
 export default Verification;
+

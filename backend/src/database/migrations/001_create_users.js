@@ -122,3 +122,4 @@ export default {
     await queryInterface.dropTable('Users');
   },
 };
+
