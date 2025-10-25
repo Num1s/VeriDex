@@ -17,6 +17,13 @@ class CarsController {
       const carData = req.body;
       const images = req.files; // From multer middleware
 
+      console.log('🚗 Creating car for user:', userId);
+      console.log('📦 Request body keys:', Object.keys(req.body));
+      console.log('📸 Files received:', images ? images.length : 0);
+      if (images && images.length > 0) {
+        console.log('📸 File details:', images.map(f => ({ name: f.originalname, size: f.size })));
+      }
+
       const result = await carsService.createCar(carData, userId, images);
 
       res.status(201).json({

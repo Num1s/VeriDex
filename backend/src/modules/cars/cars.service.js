@@ -45,18 +45,27 @@ class CarsService {
       }
 
       // Upload images to IPFS if provided
+      console.log('📸 Images received:', images ? images.length : 0, 'files');
       const imageHashes = [];
       if (images && images.length > 0) {
+        console.log('🔄 Starting IPFS upload for', images.length, 'images...');
         for (const image of images) {
           if (image.buffer) {
+            console.log('📤 Uploading:', image.originalname, 'Size:', image.size, 'bytes');
             const hash = await ipfsService.uploadFile(image.buffer, image.originalname);
             imageHashes.push({
               url: ipfsService.getUrl(hash),
               hash,
               filename: image.originalname,
             });
+            console.log('✅ Uploaded:', image.originalname, 'Hash:', hash);
+          } else {
+            console.log('⚠️ Image has no buffer:', image.originalname);
           }
         }
+        console.log('✅ All images uploaded. Total:', imageHashes.length);
+      } else {
+        console.log('⚠️ No images provided or empty array');
       }
 
       // Create metadata JSON

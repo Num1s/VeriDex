@@ -6,6 +6,7 @@ import config from './index.js';
 class IPFSService {
   constructor() {
     this.gateway = config.ipfs.gateway;
+    this.pinataJwt = config.ipfs.pinataJwt;
     this.pinataApiKey = config.ipfs.pinataApiKey;
     this.pinataSecretKey = config.ipfs.pinataSecretKey;
   }
@@ -18,8 +19,8 @@ class IPFSService {
    */
   async uploadFile(fileBuffer, fileName) {
     try {
-      if (!this.pinataApiKey || !this.pinataSecretKey) {
-        throw new Error('Pinata API keys not configured');
+      if (!this.pinataJwt && (!this.pinataApiKey || !this.pinataSecretKey)) {
+        throw new Error('Pinata credentials not configured');
       }
 
       const formData = new FormData();
@@ -28,27 +29,39 @@ class IPFSService {
         contentType: this.getContentType(fileName),
       });
 
-      const response = await axios.post(
-        'https://api.pinata.cloud/pinning/pinFileToIPFS',
-        formData,
-        {
-          headers: {
+      // Use JWT if available, otherwise fallback to API keys
+      const headers = this.pinataJwt 
+        ? {
+            'Authorization': `Bearer ${this.pinataJwt}`,
+            ...formData.getHeaders(),
+          }
+        : {
             'pinata_api_key': this.pinataApiKey,
             'pinata_secret_api_key': this.pinataSecretKey,
             ...formData.getHeaders(),
-          },
+          };
+
+      console.log('🔄 Uploading file to Pinata IPFS:', fileName);
+
+      const response = await axios.post(
+        'https://api.pinata.cloud/pinning/pinFileToIPFS',
+        formData,
+        { 
+          headers,
+          maxBodyLength: Infinity,
+          maxContentLength: Infinity,
         }
       );
 
       if (response.data.IpfsHash) {
         const ipfsUrl = `${this.gateway}${response.data.IpfsHash}`;
-        console.log(`📁 File uploaded to IPFS: ${ipfsUrl}`);
+        console.log(`✅ File uploaded to IPFS: ${ipfsUrl}`);
         return response.data.IpfsHash;
       } else {
         throw new Error('Failed to get IPFS hash from response');
       }
     } catch (error) {
-      console.error('❌ IPFS upload error:', error.message);
+      console.error('❌ IPFS upload error:', error.response?.data || error.message);
       throw error;
     }
   }
@@ -60,31 +73,39 @@ class IPFSService {
    */
   async uploadMetadata(metadata) {
     try {
-      if (!this.pinataApiKey || !this.pinataSecretKey) {
-        throw new Error('Pinata API keys not configured');
+      if (!this.pinataJwt && (!this.pinataApiKey || !this.pinataSecretKey)) {
+        throw new Error('Pinata credentials not configured');
       }
+
+      // Use JWT if available, otherwise fallback to API keys
+      const headers = this.pinataJwt
+        ? {
+            'Authorization': `Bearer ${this.pinataJwt}`,
+            'Content-Type': 'application/json',
+          }
+        : {
+            'pinata_api_key': this.pinataApiKey,
+            'pinata_secret_api_key': this.pinataSecretKey,
+            'Content-Type': 'application/json',
+          };
+
+      console.log('🔄 Uploading metadata to Pinata IPFS');
 
       const response = await axios.post(
         'https://api.pinata.cloud/pinning/pinJSONToIPFS',
         metadata,
-        {
-          headers: {
-            'pinata_api_key': this.pinataApiKey,
-            'pinata_secret_api_key': this.pinataSecretKey,
-            'Content-Type': 'application/json',
-          },
-        }
+        { headers }
       );
 
       if (response.data.IpfsHash) {
         const ipfsUrl = `${this.gateway}${response.data.IpfsHash}`;
-        console.log(`📄 Metadata uploaded to IPFS: ${ipfsUrl}`);
+        console.log(`✅ Metadata uploaded to IPFS: ${ipfsUrl}`);
         return response.data.IpfsHash;
       } else {
         throw new Error('Failed to get IPFS hash from response');
       }
     } catch (error) {
-      console.error('❌ IPFS metadata upload error:', error.message);
+      console.error('❌ IPFS metadata upload error:', error.response?.data || error.message);
       throw error;
     }
   }

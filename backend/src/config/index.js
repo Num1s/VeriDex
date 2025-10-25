@@ -44,6 +44,7 @@ const config = {
   // IPFS Configuration
   ipfs: {
     gateway: process.env.IPFS_GATEWAY || 'https://gateway.pinata.cloud/ipfs/',
+    pinataJwt: process.env.PINATA_JWT || '',
     pinataApiKey: process.env.PINATA_API_KEY || '',
     pinataSecretKey: process.env.PINATA_SECRET_KEY || '',
   },

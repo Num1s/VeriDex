@@ -87,6 +87,64 @@ class GaslessService {
         // Mock token ID
         const mockTokenId = Math.floor(Math.random() * 1000000);
 
+        // Upload images to IPFS if provided
+        console.log('📸 Images received in gasless service:', images ? images.length : 0, 'files');
+        const imageHashes = [];
+        if (images && images.length > 0) {
+          console.log('🔄 Starting IPFS upload for', images.length, 'images...');
+          for (const image of images) {
+            if (image.buffer) {
+              console.log('📤 Uploading:', image.originalname, 'Size:', image.size, 'bytes');
+              const hash = await ipfsService.uploadFile(image.buffer, image.originalname);
+              imageHashes.push({
+                url: ipfsService.getUrl(hash),
+                hash,
+                filename: image.originalname,
+              });
+              console.log('✅ Uploaded:', image.originalname, 'Hash:', hash);
+            } else {
+              console.log('⚠️ Image has no buffer:', image.originalname);
+            }
+          }
+          console.log('✅ All images uploaded. Total:', imageHashes.length);
+        } else {
+          console.log('⚠️ No images provided to gasless service');
+        }
+
+        // Create metadata JSON
+        const metadata = {
+          name: `${carData.year} ${carData.make} ${carData.model}`,
+          description: carData.description || `Tokenized ${carData.year} ${carData.make} ${carData.model}`,
+          image: imageHashes[0]?.url || '',
+          attributes: [
+            { trait_type: 'Make', value: carData.make },
+            { trait_type: 'Model', value: carData.model },
+            { trait_type: 'Year', value: parseInt(carData.year) },
+            { trait_type: 'VIN', value: vinValidation.valid ? vinValidation.formatted : carData.vin },
+            { trait_type: 'Color', value: carData.color || '' },
+            { trait_type: 'Verified', value: false },
+          ],
+          images: imageHashes,
+          vin: vinValidation.valid ? vinValidation.formatted : carData.vin,
+          make: carData.make,
+          model: carData.model,
+          year: parseInt(carData.year),
+          color: carData.color,
+          mileage: parseInt(carData.mileage) || 0,
+          engineType: carData.engineType,
+          transmission: carData.transmission,
+          fuelType: carData.fuelType,
+        };
+
+        // Upload metadata to IPFS
+        let metadataURI = 'mock://metadata-uri';
+        if (imageHashes.length > 0) {
+          console.log('🔄 Uploading metadata to IPFS...');
+          const metadataHash = await ipfsService.uploadMetadata(metadata);
+          metadataURI = ipfsService.getUrl(metadataHash);
+          console.log('✅ Metadata uploaded:', metadataURI);
+        }
+
         // Save car to database
         const carDataToSave = {
           tokenId: mockTokenId,
@@ -100,8 +158,8 @@ class GaslessService {
           transmission: carData.transmission || '',
           fuelType: carData.fuelType || '',
           description: carData.description || '',
-          metadataURI: 'mock://metadata-uri',
-          images: [],
+          metadataURI,
+          images: imageHashes,
           documents: [],
           verificationStatus: 'pending',
           verifiedBy: null,
@@ -113,7 +171,8 @@ class GaslessService {
           createdBy: userId,
         };
 
-        console.log('Mock mode: Attempting to save car with data:', JSON.stringify(carDataToSave, null, 2));
+        console.log('Mock mode: Attempting to save car with data (with', imageHashes.length, 'images)');
+        console.log('Images to save:', imageHashes.map(img => ({ url: img.url, hash: img.hash })));
 
         const savedCar = await Car.create(carDataToSave);
 
