@@ -24,6 +24,7 @@ interface CarCardProps {
     verificationStatus: string;
     isListed?: boolean;
     listingPrice?: string;
+    price?: string | number; // Added for marketplace listings
     ownerAddress: string;
     creator?: {
       id: string;
@@ -48,6 +49,11 @@ export default function CarCard({
 }: CarCardProps) {
   const verificationStatus = formatVerificationStatus(car.verificationStatus);
   const mainImage = car.images?.[0]?.url || '/placeholder-car.jpg';
+  
+  // Debug: log price data
+  if (showPrice && typeof window !== 'undefined') {
+    console.log(`💰 CarCard ${car.make} ${car.model} - price:`, car.price, 'listingPrice:', car.listingPrice);
+  }
 
   if (compact) {
     return (
@@ -81,9 +87,9 @@ export default function CarCard({
               </div>
 
               <div className="flex items-center justify-between">
-                {showPrice && car.listingPrice && (
+                {showPrice && (car.listingPrice || car.price) && (
                   <div className="font-medium text-sm">
-                    {formatPrice(car.listingPrice)}
+                    {formatPrice(car.listingPrice || car.price)}
                   </div>
                 )}
 
@@ -137,10 +143,10 @@ export default function CarCard({
           </div>
 
           {/* Price overlay */}
-          {showPrice && car.listingPrice && (
+          {showPrice && (car.listingPrice || car.price) && (
             <div className="absolute bottom-2 right-2">
               <Badge className="bg-black/80 text-white text-lg font-bold px-3 py-1">
-                {formatPrice(car.listingPrice)}
+                {formatPrice(car.listingPrice || car.price)}
               </Badge>
             </div>
           )}

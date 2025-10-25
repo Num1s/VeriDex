@@ -19,7 +19,7 @@ if (isCLI) {
       logging: config.logging,
       define: {
         timestamps: true,
-        underscored: true,
+        underscored: false,
         paranoid: true,
       },
     });
@@ -41,7 +41,7 @@ if (isCLI) {
         },
         define: {
           timestamps: true,
-          underscored: true,
+          underscored: false,
           paranoid: true,
         },
       }
@@ -49,12 +49,15 @@ if (isCLI) {
   }
 }
 
-// Test database connection (skip sync for mock mode)
+// Test database connection and sync models
 const testConnection = async () => {
   try {
     await sequelize.authenticate();
     console.log('✅ Database connection established successfully.');
-    console.log('📝 Using mock data mode - no database sync required.');
+    
+    // Sync all models (create tables if they don't exist)
+    await sequelize.sync({ force: false });
+    console.log('✅ Database models synchronized.');
   } catch (error) {
     console.error('❌ Database error:', error);
     console.log('⚠️ Continuing with mock data mode despite database error.');

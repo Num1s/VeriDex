@@ -6,7 +6,6 @@ export const config = getDefaultConfig({
   projectId: process.env.NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID || 'demo-project-id',
   chains: [hardhat],
   ssr: true, // If your dApp uses server side rendering (SSR)
-  locale: 'en', // Force English locale to avoid chunk loading issues
 });
 
 export const chains = [hardhat];

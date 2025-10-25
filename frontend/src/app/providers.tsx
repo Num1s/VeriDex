@@ -25,10 +25,6 @@ export default function Providers({ children }: { children: React.ReactNode }) {
       <QueryClientProvider client={queryClient}>
         <RainbowKitProvider
           locale="en"
-          onError={(error) => {
-            console.warn('RainbowKit error:', error);
-            // Continue without crashing
-          }}
         >
           {children}
           <Toaster

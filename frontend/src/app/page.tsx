@@ -28,12 +28,24 @@ export default function HomePage() {
   // Fetch active listings
   const { data: listingsResponse, isLoading, refetch } = useQuery({
     queryKey: ['active-listings', filters],
-    queryFn: () => marketplaceAPI.getListings(filters),
+    queryFn: async () => {
+      console.log('🔍 Fetching listings with filters:', filters);
+      const response = await marketplaceAPI.getListings(filters);
+      console.log('📦 Listings API response:', response);
+      console.log('🚗 Total listings:', response?.data?.length || 0);
+      return response;
+    },
     enabled: true,
   });
 
-  const listings = (listingsResponse?.data as unknown as any[]) || [];
+  // Extract data from response (axios wraps it in .data)
+  const listings = Array.isArray(listingsResponse?.data?.data) 
+    ? listingsResponse.data.data 
+    : (Array.isArray(listingsResponse?.data) ? listingsResponse.data : []);
   const totalListings = listings.length;
+  
+  console.log('📊 Rendered listings count:', listings.length);
+  console.log('📋 Listings array:', listings);
 
   const handleFilterChange = (key: string, value: string) => {
     setFilters(prev => ({

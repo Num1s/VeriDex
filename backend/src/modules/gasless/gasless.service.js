@@ -1,4 +1,4 @@
-import { Transaction, User } from '../../database/models/index.js';
+import { Transaction, User, Car } from '../../database/models/index.js';
 import relayerService from '../../config/relayer.config.js';
 import web3Service from '../../utils/web3.js';
 import config from '../../config/index.js';
@@ -52,109 +52,114 @@ class GaslessService {
    */
   async mintCarGasless(carData, userId, images = []) {
     try {
-      // Find user
-      const user = await User.findByPk(userId);
-      if (!user) {
-        throw new Error('User not found');
-      }
+      // Mock mode: simulate car minting
+      console.log('Mock mode: simulating car minting for user:', userId);
 
-      // Get contract address
-      const contractAddress = config.contracts.carNFT;
-      if (!contractAddress) {
-        throw new Error('CarNFT contract address not configured');
-      }
+      // Mock transaction hash
+      const mockTxHash = `0x${Math.random().toString(16).substr(2, 64)}`;
 
-      // Validate and format VIN
-      const vinValidation = validateAndFormatVIN(carData.vin);
-      if (!vinValidation.valid) {
-        throw new Error(vinValidation.error);
-      }
+      // For mock mode, also save the car to database so it appears in user cars
+      try {
+        // Import validateCarData
+        const { validateCarData } = await import('../../utils/validators.js');
 
-      // Upload images to IPFS if provided
-      const imageHashes = [];
-      if (images && images.length > 0) {
-        for (const image of images) {
-          if (image.buffer) {
-            const hash = await ipfsService.uploadFile(image.buffer, image.originalname);
-            imageHashes.push({
-              url: ipfsService.getUrl(hash),
-              hash,
-              filename: image.originalname,
-            });
-          }
+        // Validate input data
+        const validation = validateCarData(carData);
+        if (!validation.valid) {
+          console.log('Validation failed, but continuing in mock mode:', validation.errors);
         }
-      }
 
-      // Create metadata JSON
-      const metadata = {
-        name: `${carData.year} ${carData.make} ${carData.model}`,
-        description: `Tokenized ${carData.year} ${carData.make} ${carData.model}`,
-        image: imageHashes[0]?.url || '',
-        attributes: [
-          { trait_type: 'Make', value: carData.make },
-          { trait_type: 'Model', value: carData.model },
-          { trait_type: 'Year', value: carData.year },
-          { trait_type: 'VIN', value: vinValidation.formatted },
-          { trait_type: 'Color', value: carData.color || '' },
-          { trait_type: 'Verified', value: false },
-        ],
-        images: imageHashes,
-        vin: vinValidation.formatted,
-        make: carData.make,
-        model: carData.model,
-        year: carData.year,
-        color: carData.color,
-        mileage: carData.mileage,
-        engineType: carData.engineType,
-        transmission: carData.transmission,
-        fuelType: carData.fuelType,
-        description: carData.description,
-      };
+        // Format VIN
+        const vinValidation = validateAndFormatVIN(carData.vin);
+        if (!vinValidation.valid) {
+          console.log('VIN validation failed, but continuing in mock mode:', vinValidation.error);
+        }
 
-      // Upload metadata to IPFS
-      const metadataHash = await ipfsService.uploadMetadata(metadata);
-      const metadataURI = ipfsService.getUrl(metadataHash);
+        // Find user
+        console.log('Looking for user:', userId);
+        let user = await User.findByPk(userId);
+        console.log('User found in gasless service:', !!user, user?.walletAddress);
 
-      // Contract interface for CarNFT mintCar function
-      const contractInterface = [
-        'function mintCar(address to, string vin, string make, string model, uint16 year, string metadataURI) returns (uint256)',
-      ];
+        if (!user) {
+          throw new Error('User not found. Please authenticate first.');
+        }
 
-      // Prepare transaction data
-      const txData = {
-        contractAddress,
-        contractInterface,
-        methodName: 'mintCar',
-        parameters: [
-          user.walletAddress,
-          vinValidation.formatted,
-          carData.make,
-          carData.model,
-          carData.year,
-          metadataURI,
-        ],
-        metadata: {
-          carData,
-          images: imageHashes,
-          metadata,
-          metadataURI,
-        },
-      };
+        // Mock token ID
+        const mockTokenId = Math.floor(Math.random() * 1000000);
 
-      // Create gasless transaction
-      const result = await this.createGaslessTransaction(txData, userId);
-
-      return {
-        ...result,
-        carData: {
-          vin: vinValidation.formatted,
+        // Save car to database
+        const carDataToSave = {
+          tokenId: mockTokenId,
+          vin: vinValidation.valid ? vinValidation.formatted : carData.vin,
           make: carData.make,
           model: carData.model,
           year: carData.year,
-          metadataURI,
-          images: imageHashes,
+          color: carData.color || '',
+          mileage: carData.mileage || 0,
+          engineType: carData.engineType || '',
+          transmission: carData.transmission || '',
+          fuelType: carData.fuelType || '',
+          description: carData.description || '',
+          metadataURI: 'mock://metadata-uri',
+          images: [],
+          documents: [],
+          verificationStatus: 'pending',
+          verifiedBy: null,
+          verifiedAt: null,
+          isListed: carData.price ? true : false, // Auto-list if price provided
+          listingPrice: carData.price ? carData.price.toString() : null,
+          listingId: null,
+          ownerAddress: user.walletAddress.toLowerCase(),
+          createdBy: userId,
+        };
+
+        console.log('Mock mode: Attempting to save car with data:', JSON.stringify(carDataToSave, null, 2));
+
+        const savedCar = await Car.create(carDataToSave);
+
+        console.log('Mock mode: Car saved to database with ID:', savedCar.id, 'ownerAddress:', savedCar.ownerAddress);
+
+        // Verify the car was saved by querying it back
+        const verifyCar = await Car.findByPk(savedCar.id);
+        console.log('Mock mode: Verification - car found in DB:', !!verifyCar);
+
+      } catch (dbError) {
+        console.error('Mock mode: Failed to save car to database:', dbError.message);
+        console.error('Full error:', dbError);
+        
+        // Provide user-friendly error messages
+        if (dbError.name === 'SequelizeUniqueConstraintError') {
+          const field = dbError.errors?.[0]?.path || 'field';
+          const value = dbError.errors?.[0]?.value || '';
+          
+          if (field === 'vin') {
+            throw new Error(`This VIN (${value}) is already registered. Each car must have a unique VIN number.`);
+          }
+          throw new Error(`A car with this ${field} already exists.`);
+        }
+        
+        // Re-throw the error so the user knows something went wrong
+        throw new Error(`Failed to save car: ${dbError.message}`);
+      }
+
+      return {
+        transaction: {
+          hash: mockTxHash,
+          to: '0x5FbDB2315678afecb367f032d93F642f64180aa3',
+          data: '0x',
+          gasLimit: '300000',
+          gasPrice: '20000000000',
+          status: 'pending',
         },
-        metadata,
+        estimatedGas: '300000',
+        carData: {
+          vin: carData.vin,
+          make: carData.make,
+          model: carData.model,
+          year: carData.year,
+          metadataURI: 'mock://metadata-uri',
+          images: [],
+        },
       };
     } catch (error) {
       console.error('Mint car gasless error:', error.message);

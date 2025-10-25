@@ -1,5 +1,6 @@
 import { generateToken, verifyToken, createAuthMessage, generateNonce } from '../../utils/crypto.js';
 import web3Service from '../../utils/web3.js';
+import { User } from '../../database/models/index.js';
 
 // Mock data for testing
 const mockUsers = new Map();
@@ -18,9 +19,42 @@ class AuthService {
 
       const normalizedAddress = walletAddress.toLowerCase();
 
+      // First check if user exists in database
+      let dbUser = await User.findOne({ where: { walletAddress: normalizedAddress } });
+      
       // Find or create user in mock data
       let user = mockUsers.get(normalizedAddress);
-      if (!user) {
+      
+      if (dbUser) {
+        // User exists in DB, sync to mockUsers
+        user = {
+          id: dbUser.id,
+          walletAddress: dbUser.walletAddress,
+          email: dbUser.email,
+          phone: dbUser.phone,
+          firstName: dbUser.firstName,
+          lastName: dbUser.lastName,
+          profileImage: dbUser.profileImage,
+          kycStatus: dbUser.kycStatus,
+          kycDocuments: dbUser.kycDocuments,
+          isVerified: dbUser.isVerified,
+          nonce: dbUser.nonce,
+          lastLogin: dbUser.lastLogin,
+          totalCars: dbUser.totalCars,
+          totalListings: dbUser.totalListings,
+          totalPurchases: dbUser.totalPurchases,
+          reputationScore: dbUser.reputationScore,
+          isBlocked: dbUser.isBlocked,
+          blockedReason: dbUser.blockedReason,
+          preferences: dbUser.preferences,
+          createdAt: dbUser.createdAt,
+          updatedAt: dbUser.updatedAt,
+          deletedAt: dbUser.deletedAt,
+        };
+        mockUsers.set(normalizedAddress, user);
+        console.log('User loaded from database:', user.id);
+      } else if (!user) {
+        // User doesn't exist anywhere, create new
         user = {
           id: `user_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
           walletAddress: normalizedAddress,
@@ -46,6 +80,25 @@ class AuthService {
           deletedAt: null,
         };
         mockUsers.set(normalizedAddress, user);
+
+        // Save to database
+        const savedUser = await User.create({
+          id: user.id,
+          walletAddress: user.walletAddress,
+          email: user.email,
+          nonce: user.nonce,
+          isVerified: user.isVerified,
+          kycStatus: user.kycStatus,
+          lastLogin: user.lastLogin,
+          totalCars: user.totalCars,
+          totalListings: user.totalListings,
+          totalPurchases: user.totalPurchases,
+          reputationScore: user.reputationScore,
+          isBlocked: user.isBlocked,
+          blockedReason: user.blockedReason,
+          preferences: user.preferences,
+        });
+        console.log('User created in database:', savedUser.id, 'wallet:', savedUser.walletAddress);
       }
 
       // Generate new nonce
@@ -55,6 +108,9 @@ class AuthService {
 
       // Update the user in the mock storage
       mockUsers.set(normalizedAddress, user);
+      
+      // Update in database
+      await User.update({ nonce, updatedAt: new Date() }, { where: { walletAddress: normalizedAddress } });
 
       return {
         user: {
@@ -106,6 +162,24 @@ class AuthService {
 
       // Update the user in the mock storage
       mockUsers.set(normalizedAddress, user);
+
+      // Also save to database for persistence
+      await User.upsert({
+        id: user.id,
+        walletAddress: user.walletAddress,
+        email: user.email,
+        nonce: user.nonce,
+        isVerified: user.isVerified,
+        kycStatus: user.kycStatus,
+        lastLogin: user.lastLogin,
+        totalCars: user.totalCars,
+        totalListings: user.totalListings,
+        totalPurchases: user.totalPurchases,
+        reputationScore: user.reputationScore,
+        isBlocked: user.isBlocked,
+        blockedReason: user.blockedReason,
+        preferences: user.preferences,
+      });
 
       // Generate JWT token
       const token = generateToken({

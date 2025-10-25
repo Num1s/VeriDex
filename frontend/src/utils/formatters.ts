@@ -115,20 +115,33 @@ export const formatCarName = (car: { year?: number; make?: string; model?: strin
 /**
  * Format price with currency
  * @param price - Price amount
- * @param currency - Currency symbol (default: ETH)
+ * @param currency - Currency symbol (default: auto-detect)
  * @returns Formatted price string
  */
-export const formatPrice = (price: string | number, currency: string = 'ETH'): string => {
+export const formatPrice = (price: string | number, currency?: string): string => {
   try {
     const num = parseFloat(price.toString());
     if (isNaN(num)) return '0 ETH';
 
+    // Auto-detect currency based on price magnitude
+    // If price > 1000, assume it's in USD (fiat), otherwise ETH
+    let detectedCurrency = currency;
+    if (!detectedCurrency) {
+      detectedCurrency = num >= 1000 ? 'USD' : 'ETH';
+    }
+
+    // Format based on currency
+    if (detectedCurrency === 'USD') {
+      return `$${num.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`;
+    }
+
+    // Format ETH
     if (num >= 1) {
-      return `${num.toFixed(2)} ${currency}`;
+      return `${num.toFixed(2)} ${detectedCurrency}`;
     } else if (num >= 0.01) {
-      return `${num.toFixed(4)} ${currency}`;
+      return `${num.toFixed(4)} ${detectedCurrency}`;
     } else {
-      return `${num.toFixed(6)} ${currency}`;
+      return `${num.toFixed(6)} ${detectedCurrency}`;
     }
   } catch {
     return '0 ETH';

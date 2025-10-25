@@ -257,13 +257,20 @@ class CarsService {
    */
   async getUserCars(userId, filters = {}) {
     try {
+      console.log('getUserCars called with userId:', userId);
+
+      // Find user to ensure they exist
       const user = await User.findByPk(userId);
       if (!user) {
-        throw new Error('User not found');
+        console.log('User not found, returning empty array');
+        return [];
       }
+      
+      console.log('User found:', user.id, user.walletAddress);
 
+      // Query real cars from database
       const whereClause = {
-        ownerAddress: user.walletAddress,
+        createdBy: userId
       };
 
       // Apply filters
@@ -275,14 +282,22 @@ class CarsService {
         whereClause.isListed = filters.isListed;
       }
 
+      const limit = filters.limit || 50;
+      const offset = filters.offset || 0;
+
+      console.log('Querying cars with whereClause:', JSON.stringify(whereClause));
+      
       const cars = await Car.findAll({
         where: whereClause,
+        limit,
+        offset,
         order: [['createdAt', 'DESC']],
-        limit: filters.limit || 50,
-        offset: filters.offset || 0,
       });
 
-      return cars.map(car => ({
+      console.log('Found', cars.length, 'cars in database for user:', userId);
+
+      // Format cars for response
+      const formattedCars = cars.map(car => ({
         id: car.id,
         tokenId: car.tokenId,
         vin: car.vin,
@@ -290,13 +305,27 @@ class CarsService {
         model: car.model,
         year: car.year,
         color: car.color,
+        mileage: car.mileage,
+        engineType: car.engineType,
+        transmission: car.transmission,
+        fuelType: car.fuelType,
+        description: car.description,
         metadataURI: car.metadataURI,
         images: car.images,
+        documents: car.documents,
         verificationStatus: car.verificationStatus,
+        verifiedBy: car.verifiedBy,
+        verifiedAt: car.verifiedAt,
         isListed: car.isListed,
         listingPrice: car.listingPrice,
+        listingId: car.listingId,
+        ownerAddress: car.ownerAddress,
         createdAt: car.createdAt,
+        updatedAt: car.updatedAt,
       }));
+
+      console.log('Returning', formattedCars.length, 'formatted cars');
+      return formattedCars;
     } catch (error) {
       console.error('Get user cars error:', error.message);
       throw error;

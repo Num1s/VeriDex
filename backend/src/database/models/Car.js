@@ -136,6 +136,10 @@ const Car = sequelize.define('Car', {
     },
   },
 }, {
+  tableName: 'Cars',
+  underscored: false,
+  timestamps: true,
+  paranoid: true,
   indexes: [
     {
       unique: true,

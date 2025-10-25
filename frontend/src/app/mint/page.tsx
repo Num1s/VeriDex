@@ -24,6 +24,7 @@ const mintSchema = z.object({
   year: z.number().min(1900).max(new Date().getFullYear() + 2),
   color: z.string().optional(),
   mileage: z.number().min(0).optional(),
+  price: z.number().min(0).optional(),
   description: z.string().max(500).optional(),
 });
 
@@ -221,6 +222,26 @@ export default function MintPage() {
                     placeholder="e.g., 50000"
                     min="0"
                   />
+                </div>
+
+                {/* Price */}
+                <div>
+                  <label className="block text-sm font-medium mb-2">
+                    Asking Price (USD)
+                  </label>
+                  <div className="relative">
+                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">$</span>
+                    <Input
+                      {...register('price', { valueAsNumber: true })}
+                      type="number"
+                      placeholder="e.g., 25000"
+                      min="0"
+                      className="pl-7"
+                    />
+                  </div>
+                  <p className="text-xs text-gray-500 mt-1">
+                    Optional: Set your asking price if you plan to list it for sale
+                  </p>
                 </div>
 
                 {/* Description */}

@@ -34,10 +34,22 @@ export default function ProfilePage() {
   const { transactions } = useGasless();
   const [activeTab, setActiveTab] = useState('overview');
 
+  // Debug logging
+  useEffect(() => {
+    console.log('👤 Profile Page - User:', user);
+    console.log('🔐 Is Authenticated:', isAuthenticated);
+    console.log('💰 Wallet Address:', address);
+  }, [user, isAuthenticated, address]);
+
   // Fetch user's cars
   const { data: carsResponse, isLoading: carsLoading } = useQuery({
     queryKey: ['user-cars'],
-    queryFn: () => carsAPI.getUserCars(),
+    queryFn: async () => {
+      console.log('📍 Fetching cars for address:', address);
+      const response = await carsAPI.getUserCars();
+      console.log('🚗 Cars API response:', response);
+      return response;
+    },
     enabled: isAuthenticated,
   });
 
@@ -48,8 +60,8 @@ export default function ProfilePage() {
     enabled: isAuthenticated,
   });
 
-  const userCars = (carsResponse?.data as unknown as any[]) || [];
-  const userListings = (listingsResponse?.data as unknown as any[]) || [];
+  const userCars = Array.isArray(carsResponse?.data) ? carsResponse.data : [];
+  const userListings = Array.isArray(listingsResponse?.data) ? listingsResponse.data : [];
 
   // Redirect if not authenticated
   if (!isAuthenticated || !user) {
@@ -72,10 +84,13 @@ export default function ProfilePage() {
   }
 
   const getUserStats = () => {
-    const totalCars = userCars.length;
-    const verifiedCars = userCars.filter(car => car.verificationStatus === 'approved').length;
-    const listedCars = userCars.filter(car => car.isListed).length;
-    const activeListings = userListings.filter(listing => listing.status === 'active').length;
+    const safeUserCars = Array.isArray(userCars) ? userCars : [];
+    const safeUserListings = Array.isArray(userListings) ? userListings : [];
+
+    const totalCars = safeUserCars.length;
+    const verifiedCars = safeUserCars.filter(car => car.verificationStatus === 'approved').length;
+    const listedCars = safeUserCars.filter(car => car.isListed).length;
+    const activeListings = safeUserListings.filter(listing => listing.status === 'active').length;
 
     return {
       totalCars,
