@@ -95,6 +95,9 @@ export const carsAPI = {
   getUserCars: (params?: any) =>
     api.get<ApiResponse<any[]>>('/cars/my', { params }),
 
+  transferOwnership: (carId: string, newOwnerAddress: string) =>
+    api.post<ApiResponse<any>>(`/cars/${carId}/transfer`, { newOwnerAddress }),
+
   searchCars: (params: any) =>
     api.get<ApiResponse<any[]>>('/cars/search', { params }),
 

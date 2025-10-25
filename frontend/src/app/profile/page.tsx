@@ -11,6 +11,7 @@ import { useWalletAuth } from '../../hooks/useWalletAuth';
 import { useGasless } from '../../hooks/useGasless';
 import { carsAPI, marketplaceAPI } from '../../services/api';
 import CarCard from '../../components/CarCard';
+import TransferModal from '../../components/TransferModal';
 import VerificationBadge from '../../components/VerificationBadge';
 import { formatAddress, formatDate, formatPrice } from '../../utils/formatters';
 import {
@@ -33,6 +34,8 @@ export default function ProfilePage() {
   const { user, isAuthenticated, address } = useWalletAuth();
   const { transactions } = useGasless();
   const [activeTab, setActiveTab] = useState('overview');
+  const [transferModalOpen, setTransferModalOpen] = useState(false);
+  const [selectedCar, setSelectedCar] = useState<any>(null);
 
   // Debug logging
   useEffect(() => {
@@ -42,7 +45,7 @@ export default function ProfilePage() {
   }, [user, isAuthenticated, address]);
 
   // Fetch user's cars
-  const { data: carsResponse, isLoading: carsLoading } = useQuery({
+  const { data: carsResponse, isLoading: carsLoading, refetch: refetchCars } = useQuery({
     queryKey: ['user-cars'],
     queryFn: async () => {
       console.log('📍 Fetching cars for address:', address);
@@ -52,6 +55,28 @@ export default function ProfilePage() {
     },
     enabled: isAuthenticated,
   });
+
+  // Handle transfer
+  const handleTransferClick = (carId: string) => {
+    const car = userCars.find((c: any) => c.id === carId);
+    if (car) {
+      setSelectedCar(car);
+      setTransferModalOpen(true);
+    }
+  };
+
+  const handleTransfer = async (newOwnerAddress: string) => {
+    if (!selectedCar) return;
+    
+    try {
+      await carsAPI.transferOwnership(selectedCar.id, newOwnerAddress);
+      // Refresh cars list
+      refetchCars();
+    } catch (error) {
+      console.error('Transfer failed:', error);
+      throw error;
+    }
+  };
 
   // Fetch user's listings
   const { data: listingsResponse, isLoading: listingsLoading } = useQuery({
@@ -72,7 +97,7 @@ export default function ProfilePage() {
             <User className="w-16 h-16 mx-auto mb-4 text-gray-400" />
             <h2 className="text-xl font-semibold mb-2">Authentication Required</h2>
             <p className="text-gray-600 mb-4">
-              Please connect your wallet to view your profile.
+              Please connect your wallet to view your tokenized assets.
             </p>
             <Button onClick={() => router.push('/')}>
               Go to Homepage
@@ -325,8 +350,10 @@ export default function ProfilePage() {
                         key={car.id}
                         car={car}
                         showOwner={false}
-                        showPrice={false}
-                        compact={true}
+                        showPrice={true}
+                        showTransfer={true}
+                        compact={false}
+                        onTransfer={handleTransferClick}
                       />
                     ))}
                   </div>
@@ -476,6 +503,24 @@ export default function ProfilePage() {
           </TabsContent>
         </Tabs>
       </main>
+
+      {/* Transfer Modal */}
+      {selectedCar && (
+        <TransferModal
+          isOpen={transferModalOpen}
+          onClose={() => {
+            setTransferModalOpen(false);
+            setSelectedCar(null);
+          }}
+          onTransfer={handleTransfer}
+          carInfo={{
+            make: selectedCar.make,
+            model: selectedCar.model,
+            year: selectedCar.year,
+            vin: selectedCar.vin,
+          }}
+        />
+      )}
     </div>
   );
 }

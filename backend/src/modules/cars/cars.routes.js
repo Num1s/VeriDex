@@ -86,5 +86,12 @@ router.put('/:id', authenticate, carsController.updateCar);
  */
 router.post('/upload', authenticate, upload.array('images', 10), carsController.uploadImages);
 
+/**
+ * @route POST /api/cars/:carId/transfer
+ * @desc Transfer car ownership
+ * @access Private (owner only)
+ */
+router.post('/:carId/transfer', authenticate, carsController.transferOwnership);
+
 export default router;
 

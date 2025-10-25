@@ -5,7 +5,7 @@ import { Badge } from './ui/badge';
 import { Button } from './ui/button';
 import { formatAddress, formatCarName, formatPrice, formatDate } from '../utils/formatters';
 import { formatVerificationStatus, formatListingStatus } from '../utils/formatters';
-import { Eye, ShoppingCart, User } from 'lucide-react';
+import { Eye, ShoppingCart, User, Send } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 
@@ -37,7 +37,9 @@ interface CarCardProps {
   showOwner?: boolean;
   showPrice?: boolean;
   compact?: boolean;
+  showTransfer?: boolean;
   onPurchase?: (carId: string) => void;
+  onTransfer?: (carId: string) => void;
 }
 
 export default function CarCard({
@@ -45,7 +47,9 @@ export default function CarCard({
   showOwner = true,
   showPrice = true,
   compact = false,
+  showTransfer = false,
   onPurchase,
+  onTransfer,
 }: CarCardProps) {
   const verificationStatus = formatVerificationStatus(car.verificationStatus);
   const mainImage = car.images?.[0]?.url || '/placeholder-car.jpg';
@@ -57,7 +61,7 @@ export default function CarCard({
 
   if (compact) {
     return (
-      <Card className="hover:shadow-lg transition-shadow cursor-pointer">
+      <Card className="hover:shadow-xl transition-all border-2 border-gray-200 hover:border-purple-300 cursor-pointer">
         <CardContent className="p-4">
           <div className="flex gap-3">
             <div className="relative w-16 h-16 rounded-lg overflow-hidden bg-gray-100">
@@ -103,10 +107,11 @@ export default function CarCard({
                   {onPurchase && car.isListed && (
                     <Button
                       size="sm"
+                      variant="outline"
                       onClick={() => onPurchase(car.id)}
                     >
                       <ShoppingCart className="w-4 h-4 mr-1" />
-                      Buy
+                      Transfer
                     </Button>
                   )}
                 </div>
@@ -119,7 +124,7 @@ export default function CarCard({
   }
 
   return (
-    <Card className="hover:shadow-lg transition-shadow">
+    <Card className="hover:shadow-2xl transition-all border-2 border-gray-200 hover:border-purple-400 overflow-hidden">
       <CardHeader className="p-0">
         <div className="relative aspect-video w-full overflow-hidden rounded-t-lg bg-gray-100">
           <Image
@@ -131,13 +136,13 @@ export default function CarCard({
 
           {/* Status badges */}
           <div className="absolute top-2 left-2 flex gap-1">
-            <Badge className={`${verificationStatus.color}`} variant="outline">
+            <Badge className={`${verificationStatus.color} font-semibold border-2`} variant="outline">
               {verificationStatus.text}
             </Badge>
 
             {car.isListed && (
-              <Badge className="bg-green-600 text-white" variant="outline">
-                Listed
+              <Badge className="bg-green-600 text-white font-semibold border-2 border-green-500 shadow-md">
+                Available
               </Badge>
             )}
           </div>
@@ -145,7 +150,7 @@ export default function CarCard({
           {/* Price overlay */}
           {showPrice && (car.listingPrice || car.price) && (
             <div className="absolute bottom-2 right-2">
-              <Badge className="bg-black/80 text-white text-lg font-bold px-3 py-1">
+              <Badge className="bg-gradient-to-r from-purple-600 to-blue-600 text-white text-lg font-bold px-4 py-2 shadow-xl border-2 border-white">
                 {formatPrice(car.listingPrice || car.price)}
               </Badge>
             </div>
@@ -196,11 +201,21 @@ export default function CarCard({
 
             {onPurchase && car.isListed && (
               <Button
-                className="flex-1"
+                className="flex-1 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700"
                 onClick={() => onPurchase(car.id)}
               >
                 <ShoppingCart className="w-4 h-4 mr-2" />
                 Buy Now
+              </Button>
+            )}
+
+            {showTransfer && onTransfer && (
+              <Button
+                className="flex-1 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700"
+                onClick={() => onTransfer(car.id)}
+              >
+                <Send className="w-4 h-4 mr-2" />
+                Transfer
               </Button>
             )}
           </div>

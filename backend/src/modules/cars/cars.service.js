@@ -268,9 +268,9 @@ class CarsService {
       
       console.log('User found:', user.id, user.walletAddress);
 
-      // Query real cars from database
+      // Query real cars from database - show cars owned by user (not just created)
       const whereClause = {
-        createdBy: userId
+        ownerAddress: user.walletAddress.toLowerCase()
       };
 
       // Apply filters
@@ -495,6 +495,92 @@ class CarsService {
       };
     } catch (error) {
       console.error('Get car stats error:', error.message);
+      throw error;
+    }
+  }
+
+  /**
+   * Transfer car ownership
+   * @param {string} carId - Car ID
+   * @param {string} newOwnerAddress - New owner wallet address
+   * @param {string} userId - Current owner user ID
+   * @returns {Promise<Object>} - Updated car data
+   */
+  async transferOwnership(carId, newOwnerAddress, userId) {
+    try {
+      console.log('Transfer ownership:', { carId, newOwnerAddress, userId });
+
+      // Find car
+      const car = await Car.findByPk(carId);
+      if (!car) {
+        throw new Error('Car not found');
+      }
+
+      // Find current owner
+      const currentOwner = await User.findByPk(userId);
+      if (!currentOwner) {
+        throw new Error('Current owner not found');
+      }
+
+      // Verify ownership
+      if (car.ownerAddress.toLowerCase() !== currentOwner.walletAddress.toLowerCase()) {
+        throw new Error('You do not own this asset');
+      }
+
+      // Validate new owner address
+      if (!newOwnerAddress || newOwnerAddress.length !== 42) {
+        throw new Error('Invalid wallet address');
+      }
+
+      // Normalize address
+      const normalizedNewOwner = newOwnerAddress.toLowerCase();
+
+      // Find or create new owner user
+      let newOwner = await User.findOne({ where: { walletAddress: normalizedNewOwner } });
+      
+      if (!newOwner) {
+        // Create new user for the new owner
+        newOwner = await User.create({
+          id: `user_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+          walletAddress: normalizedNewOwner,
+          nonce: null,
+          isVerified: false,
+          kycStatus: 'not_submitted',
+          totalCars: 0,
+          totalListings: 0,
+          totalPurchases: 0,
+          reputationScore: 5.0,
+          isBlocked: false,
+          preferences: {},
+        });
+        console.log('Created new owner user:', newOwner.id);
+      }
+
+      // Update car ownership
+      await car.update({
+        ownerAddress: normalizedNewOwner,
+        isListed: false, // Remove from listing after transfer
+        listingPrice: null,
+        listingId: null,
+        updatedBy: userId,
+      });
+
+      console.log('Ownership transferred successfully');
+
+      return {
+        id: car.id,
+        tokenId: car.tokenId,
+        vin: car.vin,
+        make: car.make,
+        model: car.model,
+        year: car.year,
+        ownerAddress: car.ownerAddress,
+        previousOwner: currentOwner.walletAddress,
+        newOwner: normalizedNewOwner,
+        updatedAt: car.updatedAt,
+      };
+    } catch (error) {
+      console.error('Transfer ownership error:', error.message);
       throw error;
     }
   }

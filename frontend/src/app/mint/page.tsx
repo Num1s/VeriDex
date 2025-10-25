@@ -98,8 +98,8 @@ export default function MintPage() {
       });
 
       toast({
-        title: 'Car Minted Successfully!',
-        description: 'Your car NFT has been created and submitted for verification.',
+        title: 'Asset Token Created!',
+        description: 'Your asset has been tokenized and submitted to the registry for verification.',
       });
 
       router.push('/profile');
@@ -109,26 +109,35 @@ export default function MintPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-purple-50 py-8">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="text-center mb-8">
+          <div className="inline-block px-4 py-2 bg-purple-100 text-purple-800 rounded-full text-sm font-semibold mb-4">
+            🌐 Veridex RWA Hub
+          </div>
           <h1 className="text-3xl font-bold text-gray-900 mb-2">
-            Tokenize Your Car
+            Tokenize Your Real-World Asset
           </h1>
           <p className="text-lg text-gray-600">
-            Turn your car into a digital asset with zero gas fees
+            Create a blockchain-verified digital twin of your physical asset
+          </p>
+          <p className="text-sm text-gray-500 mt-2">
+            MVP Focus: Automotive Assets • Zero Gas Fees • Immutable Ownership Records
           </p>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          {/* Mint Form */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Car className="w-5 h-5" />
-                Car Information
+          {/* Tokenization Form */}
+          <Card className="shadow-xl border-2 border-purple-100">
+            <CardHeader className="bg-gradient-to-r from-purple-50 to-blue-50">
+              <CardTitle className="flex items-center gap-2 text-purple-900">
+                <Car className="w-5 h-5 text-purple-600" />
+                Asset Information
               </CardTitle>
+              <p className="text-sm text-gray-600 mt-1 font-medium">
+                Enter details to create an immutable ownership record
+              </p>
             </CardHeader>
 
             <CardContent>
@@ -224,10 +233,10 @@ export default function MintPage() {
                   />
                 </div>
 
-                {/* Price */}
+                {/* Asset Value */}
                 <div>
                   <label className="block text-sm font-medium mb-2">
-                    Asking Price (USD)
+                    Estimated Asset Value (USD)
                   </label>
                   <div className="relative">
                     <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">$</span>
@@ -240,7 +249,7 @@ export default function MintPage() {
                     />
                   </div>
                   <p className="text-xs text-gray-500 mt-1">
-                    Optional: Set your asking price if you plan to list it for sale
+                    Optional: Current market value for reference and future transfers
                   </p>
                 </div>
 
@@ -270,18 +279,18 @@ export default function MintPage() {
                 {/* Submit Button */}
                 <Button
                   type="submit"
-                  className="w-full"
+                  className="w-full text-lg py-6 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white shadow-lg hover:shadow-xl transition-all font-bold"
                   disabled={!isValid || isMinting}
                 >
                   {isMinting ? (
                     <>
-                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                      Minting Car NFT...
+                      <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                      Creating Asset Token...
                     </>
                   ) : (
                     <>
-                      <Sparkles className="w-4 h-4 mr-2" />
-                      Mint Car NFT (Gas-Free)
+                      <Sparkles className="w-5 h-5 mr-2" />
+                      Tokenize Asset (Gas-Free)
                     </>
                   )}
                 </Button>
@@ -292,9 +301,9 @@ export default function MintPage() {
           {/* Information Panel */}
           <div className="space-y-6">
             {/* Benefits */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Why Tokenize Your Car?</CardTitle>
+            <Card className="shadow-xl border-2 border-purple-100">
+              <CardHeader className="bg-gradient-to-r from-purple-50 to-blue-50">
+                <CardTitle className="text-purple-900">Why Tokenize Real-World Assets?</CardTitle>
               </CardHeader>
 
               <CardContent className="space-y-4">
@@ -305,31 +314,31 @@ export default function MintPage() {
                   <div>
                     <h4 className="font-medium">Zero Gas Fees</h4>
                     <p className="text-sm text-gray-600">
-                      Mint and trade cars without paying any gas fees
+                      Create and transfer ownership records without transaction costs
                     </p>
                   </div>
                 </div>
 
                 <div className="flex items-start gap-3">
                   <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
-                    <span className="text-blue-600 font-bold text-sm">∞</span>
+                    <span className="text-blue-600 font-bold text-sm">🔗</span>
                   </div>
                   <div>
-                    <h4 className="font-medium">Global Marketplace</h4>
+                    <h4 className="font-medium">Blockchain Verified</h4>
                     <p className="text-sm text-gray-600">
-                      Trade cars with buyers worldwide instantly
+                      Immutable ownership records stored permanently on-chain
                     </p>
                   </div>
                 </div>
 
                 <div className="flex items-start gap-3">
                   <div className="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
-                    <span className="text-purple-600 font-bold text-sm">✓</span>
+                    <span className="text-purple-600 font-bold text-sm">🌐</span>
                   </div>
                   <div>
-                    <h4 className="font-medium">Verified Ownership</h4>
+                    <h4 className="font-medium">Global Registry</h4>
                     <p className="text-sm text-gray-600">
-                      Immutable proof of ownership on the blockchain
+                      Access and verify asset ownership from anywhere
                     </p>
                   </div>
                 </div>
@@ -337,9 +346,9 @@ export default function MintPage() {
             </Card>
 
             {/* Requirements */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Requirements</CardTitle>
+            <Card className="shadow-xl border-2 border-purple-100">
+              <CardHeader className="bg-gradient-to-r from-purple-50 to-blue-50">
+                <CardTitle className="text-purple-900">Requirements</CardTitle>
               </CardHeader>
 
               <CardContent className="space-y-3">
@@ -374,9 +383,9 @@ export default function MintPage() {
             </Card>
 
             {/* Network Info */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Network Information</CardTitle>
+            <Card className="shadow-xl border-2 border-purple-100">
+              <CardHeader className="bg-gradient-to-r from-purple-50 to-blue-50">
+                <CardTitle className="text-purple-900">Network Information</CardTitle>
               </CardHeader>
 
               <CardContent className="space-y-3">
@@ -396,7 +405,7 @@ export default function MintPage() {
                 </div>
 
                 <div className="text-xs text-gray-500 mt-3">
-                  Your car will be submitted for verification before listing.
+                  Your asset will be submitted for verification before being added to the registry.
                   This process typically takes 24-48 hours.
                 </div>
               </CardContent>

@@ -304,6 +304,35 @@ class CarsController {
       next(error);
     }
   }
+
+  /**
+   * Transfer car ownership
+   * @route POST /api/cars/:carId/transfer
+   */
+  async transferOwnership(req, res, next) {
+    try {
+      const { carId } = req.params;
+      const { newOwnerAddress } = req.body;
+      const { userId } = req.user;
+
+      if (!newOwnerAddress) {
+        return res.status(400).json({
+          success: false,
+          message: 'New owner address is required',
+        });
+      }
+
+      const result = await carsService.transferOwnership(carId, newOwnerAddress, userId);
+
+      res.status(200).json({
+        success: true,
+        message: 'Ownership transferred successfully',
+        data: result,
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
 }
 
 const carsController = new CarsController();
