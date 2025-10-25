@@ -35,11 +35,14 @@ export const useWalletAuth = () => {
   }, []);
 
   // Auto-generate nonce when wallet is connected but user is not authenticated
+  // Only run once when wallet connects
   useEffect(() => {
-    if (isConnected && !user && !nonce) {
+    if (isConnected && !user && !nonce && address) {
+      console.log('🔄 Auto-generating nonce for connected wallet');
       generateNonce().catch(console.error);
     }
-  }, [isConnected, user, nonce]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isConnected, user, address]); // Removed 'nonce' from dependencies to prevent infinite loop
 
   const generateNonce = async () => {
     if (!address) {

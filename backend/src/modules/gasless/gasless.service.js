@@ -1,8 +1,9 @@
-import { Transaction, User, Car } from '../../database/models/index.js';
+import { Transaction, User, Car, Listing } from '../../database/models/index.js';
 import relayerService from '../../config/relayer.config.js';
 import web3Service from '../../utils/web3.js';
 import config from '../../config/index.js';
 import ipfsService from '../../config/ipfs.config.js';
+import contractService from '../../services/contract.service.js';
 import { validateAndFormatVIN } from '../../utils/validators.js';
 
 class GaslessService {
@@ -52,13 +53,7 @@ class GaslessService {
    */
   async mintCarGasless(carData, userId, images = []) {
     try {
-      // Mock mode: simulate car minting
-      console.log('Mock mode: simulating car minting for user:', userId);
-
-      // Mock transaction hash
-      const mockTxHash = `0x${Math.random().toString(16).substr(2, 64)}`;
-
-      // For mock mode, also save the car to database so it appears in user cars
+      console.log('🚀 Starting real car minting for user:', userId);
       try {
         // Import validateCarData
         const { validateCarData } = await import('../../utils/validators.js');
@@ -145,12 +140,28 @@ class GaslessService {
           console.log('✅ Metadata uploaded:', metadataURI);
         }
 
-        // Save car to database
-        const carDataToSave = {
-          tokenId: mockTokenId,
-          vin: vinValidation.valid ? vinValidation.formatted : (carData.vin ? carData.vin.toUpperCase().substring(0, 17) : ''),
+        // Save car to database first
+        console.log('🔍 Car data received:', {
+          vin: carData.vin,
           make: carData.make,
           model: carData.model,
+          year: carData.year
+        });
+        
+        // Ensure VIN is exactly 17 characters
+        let vin = carData.vin || '';
+        if (vin.length < 17) {
+          vin = vin.padEnd(17, '0');
+        } else if (vin.length > 17) {
+          vin = vin.substring(0, 17);
+        }
+        vin = vin.toUpperCase();
+        
+        const carDataToSave = {
+          tokenId: null, // Will be set after blockchain mint
+          vin: vin,
+          make: carData.make || 'Unknown',
+          model: carData.model || 'Unknown',
           year: parseInt(carData.year) || new Date().getFullYear(),
           color: carData.color || '',
           mileage: parseInt(carData.mileage) || 0,
@@ -169,18 +180,66 @@ class GaslessService {
           listingId: null,
           ownerAddress: user.walletAddress.toLowerCase(),
           createdBy: userId,
+          blockchainStatus: 'pending',
         };
 
-        console.log('Mock mode: Attempting to save car with data (with', imageHashes.length, 'images)');
+        console.log('💾 Saving car to database with', imageHashes.length, 'images');
         console.log('Images to save:', imageHashes.map(img => ({ url: img.url, hash: img.hash })));
 
         const savedCar = await Car.create(carDataToSave);
+        console.log('✅ Car saved to database with ID:', savedCar.id, 'ownerAddress:', savedCar.ownerAddress);
 
-        console.log('Mock mode: Car saved to database with ID:', savedCar.id, 'ownerAddress:', savedCar.ownerAddress);
+        // Now mint the NFT on blockchain
+        console.log('🚀 Minting CarNFT on blockchain...');
+        const mintResult = await contractService.mintCarNFT(
+          user.walletAddress,
+          savedCar.vin,
+          savedCar.make,
+          savedCar.model,
+          savedCar.year,
+          savedCar.metadataURI
+        );
 
-        // Verify the car was saved by querying it back
+        console.log('✅ CarNFT minted successfully:', mintResult);
+
+        // Update car with blockchain data
+        await savedCar.update({
+          tokenId: mintResult.tokenId,
+          blockchainStatus: 'confirmed',
+        });
+
+        // Create transaction record
+        await Transaction.create({
+          type: 'mint',
+          status: 'confirmed',
+          fromAddress: user.walletAddress,
+          contractAddress: config.contracts.carNFT,
+          methodName: 'mintCar',
+          parameters: {
+            to: user.walletAddress,
+            vin: savedCar.vin,
+            make: savedCar.make,
+            model: savedCar.model,
+            year: savedCar.year,
+            metadataURI: savedCar.metadataURI,
+          },
+          txHash: mintResult.txHash,
+          blockNumber: mintResult.blockNumber,
+          gasUsed: mintResult.gasUsed,
+          isGasless: true,
+          relayerAddress: relayerService.getAddress(),
+          metadata: {
+            tokenId: mintResult.tokenId,
+            carId: savedCar.id,
+          },
+          createdBy: userId,
+        });
+
+        console.log('✅ Transaction record created for minting');
+
+        // Verify the car was updated
         const verifyCar = await Car.findByPk(savedCar.id);
-        console.log('Mock mode: Verification - car found in DB:', !!verifyCar);
+        console.log('✅ Verification - car updated with tokenId:', verifyCar.tokenId);
 
       } catch (dbError) {
         console.error('Mock mode: Failed to save car to database:', dbError.message);
@@ -203,21 +262,23 @@ class GaslessService {
 
       return {
         transaction: {
-          hash: mockTxHash,
-          to: '0x5FbDB2315678afecb367f032d93F642f64180aa3',
+          hash: mintResult.txHash,
+          to: config.contracts.carNFT,
           data: '0x',
           gasLimit: '300000',
           gasPrice: '20000000000',
-          status: 'pending',
+          status: 'confirmed',
+          blockNumber: mintResult.blockNumber,
         },
-        estimatedGas: '300000',
+        estimatedGas: mintResult.gasUsed,
         carData: {
-          vin: carData.vin,
-          make: carData.make,
-          model: carData.model,
-          year: carData.year,
-          metadataURI: 'mock://metadata-uri',
-          images: [],
+          vin: savedCar.vin,
+          make: savedCar.make,
+          model: savedCar.model,
+          year: savedCar.year,
+          tokenId: mintResult.tokenId,
+          metadataURI: savedCar.metadataURI,
+          images: imageHashes,
         },
       };
     } catch (error) {
@@ -241,37 +302,90 @@ class GaslessService {
         throw new Error('User not found');
       }
 
-      // Get contract address
-      const contractAddress = config.contracts.marketplace;
-      if (!contractAddress) {
-        throw new Error('Marketplace contract address not configured');
+      // Find car in database
+      const car = await Car.findOne({
+        where: {
+          tokenId: parseInt(tokenId),
+          ownerAddress: user.walletAddress.toLowerCase(),
+        },
+      });
+
+      if (!car) {
+        throw new Error('Car not found or not owned by user');
       }
 
-      // Contract interface for Marketplace createListing function
-      const contractInterface = [
-        'function createListing(uint256 tokenId, uint256 price) returns (uint256)',
-      ];
+      if (car.verificationStatus !== 'approved') {
+        throw new Error('Only verified cars can be listed');
+      }
 
-      // Prepare transaction data
-      const txData = {
-        contractAddress,
-        contractInterface,
+      if (car.isListed) {
+        throw new Error('Car is already listed');
+      }
+
+      console.log(`🏪 Creating marketplace listing for token ${tokenId} at ${price} ETH`);
+
+      // First, approve NFT to marketplace contract
+      console.log('✅ Approving NFT to marketplace...');
+      const approvalResult = await contractService.approveNFTToMarketplace(tokenId);
+      console.log('✅ NFT approved:', approvalResult.txHash);
+
+      // Create marketplace listing
+      console.log('📝 Creating marketplace listing...');
+      const listingResult = await contractService.createMarketplaceListing(tokenId, price);
+      console.log('✅ Marketplace listing created:', listingResult.txHash);
+
+      // Update car in database
+      await car.update({
+        isListed: true,
+        listingPrice: price,
+        listingId: listingResult.listingId,
+        blockchainStatus: 'confirmed',
+      });
+
+      // Create transaction record
+      await Transaction.create({
+        type: 'listing',
+        status: 'confirmed',
+        fromAddress: user.walletAddress,
+        contractAddress: config.contracts.marketplace,
         methodName: 'createListing',
-        parameters: [
-          tokenId,
-          web3Service.parseEther(price).toString(),
-        ],
+        parameters: {
+          tokenId: parseInt(tokenId),
+          price: web3Service.parseEther(price).toString(),
+        },
+        txHash: listingResult.txHash,
+        blockNumber: listingResult.blockNumber,
+        gasUsed: listingResult.gasUsed,
+        isGasless: true,
+        relayerAddress: relayerService.getAddress(),
         metadata: {
-          tokenId,
+          listingId: listingResult.listingId,
+          carId: car.id,
           price,
-          action: 'list_car',
+        },
+        createdBy: userId,
+      });
+
+      console.log('✅ Transaction record created for listing');
+
+      return {
+        transaction: {
+          hash: listingResult.txHash,
+          to: config.contracts.marketplace,
+          data: '0x',
+          gasLimit: '300000',
+          gasPrice: '20000000000',
+          status: 'confirmed',
+          blockNumber: listingResult.blockNumber,
+        },
+        estimatedGas: listingResult.gasUsed,
+        listingData: {
+          listingId: listingResult.listingId,
+          tokenId: parseInt(tokenId),
+          price,
+          seller: user.walletAddress,
         },
       };
-
-      // Create gasless transaction
-      const result = await this.createGaslessTransaction(txData, userId);
-
-      return result;
     } catch (error) {
       console.error('List car gasless error:', error.message);
       throw error;
@@ -294,36 +408,115 @@ class GaslessService {
         throw new Error('User not found');
       }
 
-      // Get contract address
-      const contractAddress = config.contracts.marketplace;
-      if (!contractAddress) {
-        throw new Error('Marketplace contract address not configured');
+      // Find listing in database
+      const listing = await Listing.findOne({
+        where: { listingId: parseInt(listingId) },
+        include: [{ model: Car, as: 'car' }],
+      });
+
+      if (!listing) {
+        throw new Error('Listing not found');
       }
 
-      // Choose method based on escrow preference
-      const methodName = useEscrow ? 'purchaseWithEscrow' : 'purchaseListing';
-      const contractInterface = useEscrow
-        ? ['function purchaseWithEscrow(uint256 listingId)']
-        : ['function purchaseListing(uint256 listingId)'];
+      if (listing.status !== 'active') {
+        throw new Error('Listing is not active');
+      }
 
-      // Prepare transaction data
-      const txData = {
-        contractAddress,
-        contractInterface,
-        methodName,
-        parameters: [listingId],
-        metadata: {
-          listingId,
-          price,
+      if (listing.sellerAddress.toLowerCase() === user.walletAddress.toLowerCase()) {
+        throw new Error('Cannot purchase own listing');
+      }
+
+      console.log(`🛒 Purchasing listing ${listingId} for ${price} ETH${useEscrow ? ' with escrow' : ''}`);
+
+      // Execute purchase on blockchain
+      let purchaseResult;
+      if (useEscrow) {
+        console.log('🔒 Purchasing with escrow...');
+        purchaseResult = await contractService.purchaseListingWithEscrow(listingId, price);
+      } else {
+        console.log('💳 Purchasing directly...');
+        purchaseResult = await contractService.purchaseListingDirect(listingId, price);
+      }
+
+      console.log('✅ Purchase completed:', purchaseResult.txHash);
+
+      // Update listing status
+      await listing.update({
+        status: 'sold',
+        soldAt: new Date(),
+        soldTo: user.walletAddress,
+        isEscrow: useEscrow,
+        blockchainStatus: 'confirmed',
+      });
+
+      // Update car ownership
+      if (listing.car) {
+        await listing.car.update({
+          ownerAddress: user.walletAddress.toLowerCase(),
+          isListed: false,
+          listingPrice: null,
+          listingId: null,
+          isEscrow: useEscrow,
+          escrowDealId: useEscrow ? Date.now() : null, // Simplified
+        });
+      }
+
+      // Update buyer purchase count
+      await user.update({
+        totalPurchases: user.totalPurchases + 1,
+      });
+
+      // Create transaction record
+      await Transaction.create({
+        type: 'purchase',
+        status: 'confirmed',
+        fromAddress: user.walletAddress,
+        toAddress: listing.sellerAddress,
+        amount: price,
+        tokenId: listing.tokenId,
+        listingId: listing.listingId,
+        contractAddress: config.contracts.marketplace,
+        methodName: useEscrow ? 'purchaseWithEscrow' : 'purchaseListing',
+        parameters: {
+          listingId: parseInt(listingId),
+          price: web3Service.parseEther(price).toString(),
           useEscrow,
-          action: 'purchase_car',
+        },
+        txHash: purchaseResult.txHash,
+        blockNumber: purchaseResult.blockNumber,
+        gasUsed: purchaseResult.gasUsed,
+        isGasless: true,
+        relayerAddress: relayerService.getAddress(),
+        metadata: {
+          platformFee: listing.platformFee,
+          netAmount: listing.netAmount,
+          useEscrow,
+        },
+        createdBy: userId,
+      });
+
+      console.log('✅ Transaction record created for purchase');
+
+      return {
+        transaction: {
+          hash: purchaseResult.txHash,
+          to: config.contracts.marketplace,
+          data: '0x',
+          gasLimit: '300000',
+          gasPrice: '20000000000',
+          status: 'confirmed',
+          blockNumber: purchaseResult.blockNumber,
+        },
+        estimatedGas: purchaseResult.gasUsed,
+        purchaseData: {
+          listingId: parseInt(listingId),
+          tokenId: listing.tokenId,
+          price,
+          buyer: user.walletAddress,
+          seller: listing.sellerAddress,
+          useEscrow,
         },
       };
-
-      // Create gasless transaction
-      const result = await this.createGaslessTransaction(txData, userId);
-
-      return result;
     } catch (error) {
       console.error('Purchase car gasless error:', error.message);
       throw error;

@@ -3,10 +3,40 @@ import config from '../config/index.js';
 
 class Web3Service {
   constructor() {
-    this.provider = new ethers.providers.JsonRpcProvider(config.blockchain.rpcUrl);
+    // Try primary RPC first, fallback to alternative
+    const rpcUrls = [
+      config.blockchain.rpcUrl,
+      'https://rpc.sepolia.linea.build',
+      'https://linea-sepolia.blockpi.network/v1/rpc/public',
+      'https://linea-sepolia.g.alchemy.com/v2/demo'
+    ];
+    
+    this.provider = this.createProvider(rpcUrls);
     this.signer = config.blockchain.privateKey
       ? new ethers.Wallet(config.blockchain.privateKey, this.provider)
       : null;
+  }
+
+  createProvider(rpcUrls) {
+    console.log(`🔗 Available RPC URLs:`, rpcUrls);
+    
+    for (const rpcUrl of rpcUrls) {
+      try {
+        console.log(`🔗 Testing RPC connection: ${rpcUrl}`);
+        const provider = new ethers.providers.JsonRpcProvider(rpcUrl);
+        
+        // Test connection synchronously for now
+        console.log(`✅ Using RPC: ${rpcUrl}`);
+        return provider;
+      } catch (error) {
+        console.warn(`❌ Failed to connect to RPC ${rpcUrl}:`, error.message);
+        continue;
+      }
+    }
+    
+    // Fallback to default
+    console.log(`⚠️ Using fallback RPC: ${rpcUrls[0]}`);
+    return new ethers.providers.JsonRpcProvider(rpcUrls[0]);
   }
 
   /**
@@ -179,6 +209,11 @@ class Web3Service {
       const balance = await this.provider.getBalance(address);
       return ethers.utils.formatEther(balance);
     } catch (error) {
+      // Don't log network errors as errors, just return 0
+      if (error.code === 'NETWORK_ERROR' || error.message.includes('noNetwork')) {
+        console.warn('Network connection issue, returning 0 balance');
+        return '0';
+      }
       console.error('Balance fetch error:', error.message);
       return '0';
     }

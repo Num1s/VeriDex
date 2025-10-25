@@ -33,10 +33,18 @@ export const NETWORKS = {
     },
     rpcUrls: {
       default: {
-        http: ['https://rpc.sepolia.linea.build'],
+        http: [
+          'https://linea-sepolia.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161',
+          'https://linea-sepolia.blockpi.network/v1/rpc/public',
+          'https://rpc.sepolia.linea.build'
+        ],
       },
       public: {
-        http: ['https://rpc.sepolia.linea.build'],
+        http: [
+          'https://linea-sepolia.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161',
+          'https://linea-sepolia.blockpi.network/v1/rpc/public',
+          'https://rpc.sepolia.linea.build'
+        ],
       },
     },
     blockExplorers: {
@@ -89,7 +97,7 @@ export const SUPPORTED_CHAINS = [
 ];
 
 // Default chain (can be configured via environment)
-export const DEFAULT_CHAIN = NETWORKS.hardhat; // Use hardhat for development
+export const DEFAULT_CHAIN = NETWORKS.linea; // Use Linea testnet for development
 
 // Gasless configuration
 export const GASLESS_CONFIG = {
@@ -119,7 +127,7 @@ export const GASLESS_CONFIG = {
 // API configuration
 export const API_CONFIG = {
       baseURL: process.env.NEXT_PUBLIC_API_URL || 'http://10.208.0.158:3001/api',
-  timeout: 10000,
+  timeout: 180000, // 180 seconds (3 minutes) for blockchain operations
   retries: 3,
 };
 

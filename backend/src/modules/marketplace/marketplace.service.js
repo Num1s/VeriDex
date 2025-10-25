@@ -3,6 +3,7 @@ import { Listing, Car, User, Transaction } from '../../database/models/index.js'
 import web3Service from '../../utils/web3.js';
 import config from '../../config/index.js';
 import relayerService from '../../config/relayer.config.js';
+import contractService from '../../services/contract.service.js';
 
 class MarketplaceService {
   /**
@@ -89,23 +90,43 @@ class MarketplaceService {
         totalListings: user.totalListings + 1,
       });
 
-      // Create blockchain transaction
-      const contractAddress = config.contracts.marketplace;
-      if (contractAddress) {
-        const contractInterface = [
-          'function createListing(uint256 tokenId, uint256 price) returns (uint256)',
-        ];
+      // Create blockchain listing
+      try {
+        console.log('🏪 Creating marketplace listing on blockchain...');
+        
+        // First, approve NFT to marketplace contract
+        console.log('✅ Approving NFT to marketplace...');
+        const approvalResult = await contractService.approveNFTToMarketplace(listingData.tokenId);
+        console.log('✅ NFT approved:', approvalResult.txHash);
 
-        const transaction = await Transaction.create({
+        // Create marketplace listing
+        console.log('📝 Creating marketplace listing...');
+        const listingResult = await contractService.createMarketplaceListing(listingData.tokenId, listingData.price);
+        console.log('✅ Marketplace listing created:', listingResult.txHash);
+
+        // Update listing with blockchain data
+        await listing.update({
+          blockchainStatus: 'confirmed',
+          txHash: listingResult.txHash,
+          blockNumber: listingResult.blockNumber,
+        });
+
+        // Create transaction record
+        await Transaction.create({
           type: 'listing',
-          status: 'pending',
+          status: 'confirmed',
           fromAddress: user.walletAddress,
-          contractAddress,
+          contractAddress: config.contracts.marketplace,
           methodName: 'createListing',
           parameters: {
             tokenId: listingData.tokenId,
             price: web3Service.parseEther(listingData.price).toString(),
           },
+          txHash: listingResult.txHash,
+          blockNumber: listingResult.blockNumber,
+          gasUsed: listingResult.gasUsed,
+          isGasless: true,
+          relayerAddress: relayerService.getAddress(),
           metadata: {
             listingId,
             carId: car.id,
@@ -113,25 +134,14 @@ class MarketplaceService {
           createdBy: userId,
         });
 
-        // Send gasless transaction
-        try {
-          const encodedData = web3Service.encodeFunctionCall(
-            contractInterface,
-            'createListing',
-            [listingData.tokenId, web3Service.parseEther(listingData.price).toString()]
-          );
-
-          const txHash = await relayerService.sendMetaTransaction(contractAddress, encodedData);
-
-          await transaction.update({
-            txHash,
-            isGasless: true,
-            relayerAddress: relayerService.getAddress(),
-          });
-        } catch (error) {
-          console.error('Marketplace transaction error:', error.message);
-          // Continue with database record even if blockchain fails
-        }
+        console.log('✅ Transaction record created for listing');
+      } catch (error) {
+        console.error('❌ Marketplace listing creation error:', error.message);
+        // Update listing status to failed
+        await listing.update({
+          blockchainStatus: 'failed',
+        });
+        throw new Error(`Failed to create blockchain listing: ${error.message}`);
       }
 
       return {
@@ -461,9 +471,24 @@ class MarketplaceService {
         throw new Error('Cannot purchase own listing');
       }
 
-      // Check if buyer has sufficient balance (simplified)
-      const price = parseFloat(listing.price);
-      // In a real implementation, you would check buyer's balance
+      // Execute purchase on blockchain
+      console.log(`🛒 Purchasing listing ${listing.listingId} for ${listing.price} ETH${useEscrow ? ' with escrow' : ''}`);
+
+      let purchaseResult;
+      try {
+        if (useEscrow) {
+          console.log('🔒 Purchasing with escrow...');
+          purchaseResult = await contractService.purchaseListingWithEscrow(listing.listingId, listing.price);
+        } else {
+          console.log('💳 Purchasing directly...');
+          purchaseResult = await contractService.purchaseListingDirect(listing.listingId, listing.price);
+        }
+
+        console.log('✅ Purchase completed:', purchaseResult.txHash);
+      } catch (error) {
+        console.error('❌ Purchase failed:', error.message);
+        throw new Error(`Purchase failed: ${error.message}`);
+      }
 
       // Update listing
       await listing.update({
@@ -471,6 +496,7 @@ class MarketplaceService {
         soldAt: new Date(),
         soldTo: buyer.walletAddress,
         isEscrow: useEscrow,
+        blockchainStatus: 'confirmed',
         updatedBy: buyerId,
       });
 
@@ -498,7 +524,7 @@ class MarketplaceService {
       // Create transaction record
       const transaction = await Transaction.create({
         type: 'purchase',
-        status: 'pending',
+        status: 'confirmed',
         fromAddress: buyer.walletAddress,
         toAddress: listing.sellerAddress,
         amount: listing.price,
@@ -511,9 +537,15 @@ class MarketplaceService {
           price: listing.price,
           useEscrow,
         },
+        txHash: purchaseResult.txHash,
+        blockNumber: purchaseResult.blockNumber,
+        gasUsed: purchaseResult.gasUsed,
+        isGasless: true,
+        relayerAddress: relayerService.getAddress(),
         metadata: {
           platformFee: listing.platformFee,
           netAmount: listing.netAmount,
+          useEscrow,
         },
         createdBy: buyerId,
       });
@@ -538,6 +570,90 @@ class MarketplaceService {
       };
     } catch (error) {
       console.error('Purchase listing error:', error.message);
+      throw error;
+    }
+  }
+
+  /**
+   * Confirm escrow release (for verifier/admin)
+   * @param {string} dealId - Escrow deal ID
+   * @param {string} userId - User ID (verifier)
+   * @returns {Promise<Object>} - Release result
+   */
+  async confirmEscrowRelease(dealId, userId) {
+    try {
+      // Find listing with escrow
+      const listing = await Listing.findOne({
+        where: {
+          isEscrow: true,
+          status: 'sold',
+        },
+        include: [{ model: Car, as: 'car' }],
+      });
+
+      if (!listing) {
+        throw new Error('No escrow listing found');
+      }
+
+      console.log(`🔓 Releasing escrow deal ${dealId} for listing ${listing.listingId}`);
+
+      // Release escrow on blockchain
+      const releaseResult = await contractService.releaseEscrow(dealId);
+      console.log('✅ Escrow released:', releaseResult.txHash);
+
+      // Update listing
+      await listing.update({
+        escrowReleased: true,
+        escrowReleasedAt: new Date(),
+        blockchainStatus: 'confirmed',
+        updatedBy: userId,
+      });
+
+      // Update car ownership (final transfer)
+      if (listing.car) {
+        await listing.car.update({
+          ownerAddress: listing.soldTo,
+          isEscrow: false,
+          escrowDealId: null,
+          updatedBy: userId,
+        });
+      }
+
+      // Create transaction record
+      await Transaction.create({
+        type: 'escrow_release',
+        status: 'confirmed',
+        fromAddress: config.admin.walletAddress,
+        contractAddress: config.contracts.escrow,
+        methodName: 'releaseEscrow',
+        parameters: {
+          dealId: parseInt(dealId),
+        },
+        txHash: releaseResult.txHash,
+        blockNumber: releaseResult.blockNumber,
+        gasUsed: releaseResult.gasUsed,
+        isGasless: true,
+        relayerAddress: relayerService.getAddress(),
+        metadata: {
+          dealId: parseInt(dealId),
+          listingId: listing.listingId,
+          tokenId: listing.tokenId,
+        },
+        createdBy: userId,
+      });
+
+      console.log('✅ Escrow release transaction recorded');
+
+      return {
+        dealId: parseInt(dealId),
+        listingId: listing.listingId,
+        tokenId: listing.tokenId,
+        txHash: releaseResult.txHash,
+        blockNumber: releaseResult.blockNumber,
+        message: 'Escrow released successfully',
+      };
+    } catch (error) {
+      console.error('Confirm escrow release error:', error.message);
       throw error;
     }
   }

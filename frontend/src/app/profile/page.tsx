@@ -13,6 +13,7 @@ import { carsAPI, marketplaceAPI } from '../../services/api';
 import CarCard from '../../components/CarCard';
 import TransferModal from '../../components/TransferModal';
 import VerificationBadge from '../../components/VerificationBadge';
+import CreateListingModal from '../../components/CreateListingModal';
 import { formatAddress, formatDate, formatPrice } from '../../utils/formatters';
 import {
   Car,
@@ -93,7 +94,7 @@ export default function ProfilePage() {
   };
 
   // Fetch user's listings
-  const { data: listingsResponse, isLoading: listingsLoading } = useQuery({
+  const { data: listingsResponse, isLoading: listingsLoading, refetch: refetchListings } = useQuery({
     queryKey: ['user-listings'],
     queryFn: () => marketplaceAPI.getUserListings(),
     enabled: isAuthenticated,
@@ -366,8 +367,14 @@ export default function ProfilePage() {
                         showOwner={false}
                         showPrice={true}
                         showTransfer={true}
+                        showListButton={true}
                         compact={false}
                         onTransfer={handleTransferClick}
+                        onListSuccess={() => {
+                          // Refresh cars and listings
+                          refetchCars();
+                          refetchListings();
+                        }}
                       />
                     ))}
                   </div>

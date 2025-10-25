@@ -7,6 +7,27 @@
 
 > Tokenize your car as an NFT and trade with **zero gas fees** using Status Network and Linea zkEVM.
 
+
+Veridex - is a decentralized profile platform where users can verify and showcase their real achievements through on-chain NFT badges.  
+Each badge represents a certified course, competition, or project, allowing anyone to prove their skills transparently.  
+Organizations can issue verified credentials directly to users’ wallets, creating a trustless reputation system.  
+SkillProof aims to build a universal Web3 résumé for students and professionals.  
+*Made during ETHBishkek 2025 hackathon.*
+
+---
+
+## 👥 Team Members
+- Aitmyrza Dastanbekov  
+- Nikita Undusk  
+- Kubatov Kairat  
+- Sultanbekov Nurbol
+
+---
+
+## 🎥 Demo Video
+[Watch the demo here](#) <!-- Replace # with the final video link when ready -->
+
+
 ## ✨ Features
 
 - 🚗 **Car Tokenization**: Turn your car into an ERC-721 NFT

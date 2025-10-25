@@ -18,25 +18,37 @@ export default function WalletConnect({ showBalance = false, variant = 'default'
   const { user, isAuthenticated, nonce, generateNonce, login, signAuthMessage, isAuthenticating } = useWalletAuth();
 
   const handleAuth = async () => {
-    if (!address) return;
+    console.log('🔐 handleAuth called', { address, isConnected });
+    
+    if (!address) {
+      console.error('❌ No address available');
+      return;
+    }
 
     try {
+      console.log('📝 Generating nonce...');
       // Generate nonce if not already generated
       let currentNonce = nonce;
       if (!currentNonce) {
         currentNonce = await generateNonce() || '';
+        console.log('✅ Nonce generated:', currentNonce);
       }
 
       // Create message to sign
       const message = `Welcome to AutoToken!\n\nPlease sign this message to authenticate with your wallet.\n\nNonce: ${currentNonce}\n\nThis signature will be used to verify your identity and will not trigger any blockchain transaction.`;
 
+      console.log('✍️ Signing message...');
       // Sign the message
       const signature = await signAuthMessage(message);
+      console.log('✅ Message signed');
 
+      console.log('🔑 Logging in...');
       // Login with signature
       await login(signature, message);
-    } catch (error) {
-      console.error('Auth error:', error);
+      console.log('✅ Login successful');
+    } catch (error: any) {
+      console.error('❌ Auth error:', error);
+      alert(`Authentication failed: ${error?.message || 'Unknown error'}`);
     }
   };
 
@@ -73,7 +85,10 @@ export default function WalletConnect({ showBalance = false, variant = 'default'
                   {/* Authenticate Button - when wallet connected but not authenticated */}
                   {isConnected && !isAuthenticated ? (
                     <Button
-                      onClick={handleAuth}
+                      onClick={(e) => {
+                        console.log('🔘 Sign In button clicked', { isConnected, isAuthenticated, address });
+                        handleAuth();
+                      }}
                       disabled={isAuthenticating}
                       size="sm"
                       className="flex items-center gap-1"

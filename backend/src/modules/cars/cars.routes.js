@@ -93,5 +93,12 @@ router.post('/upload', authenticate, upload.array('images', 10), carsController.
  */
 router.post('/:carId/transfer', authenticate, carsController.transferOwnership);
 
+/**
+ * @route DELETE /api/cars/:id
+ * @desc Delete car (only if not tokenized)
+ * @access Private (owner only)
+ */
+router.delete('/:id', authenticate, carsController.deleteCar);
+
 export default router;
 

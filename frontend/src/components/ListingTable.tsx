@@ -51,6 +51,7 @@ interface ListingTableProps {
   onEdit?: (listing: Listing) => void;
   onCancel?: (listing: Listing) => void;
   isLoading?: boolean;
+  PurchaseModal?: React.ComponentType<any>;
 }
 
 type SortField = 'price' | 'createdAt' | 'make' | 'year';
@@ -63,6 +64,7 @@ export default function ListingTable({
   onEdit,
   onCancel,
   isLoading = false,
+  PurchaseModal,
 }: ListingTableProps) {
   const [searchQuery, setSearchQuery] = useState('');
   const [sortField, setSortField] = useState<SortField>('createdAt');
@@ -284,13 +286,28 @@ export default function ListingTable({
                                 </Link>
                               </Button>
 
-                              {onPurchase && listing.status === 'active' && (
-                                <Button 
-                                  size="sm" 
-                                  onClick={() => onPurchase(listing)}
-                                >
-                                  <ShoppingCart className="w-4 h-4" />
-                                </Button>
+                              {listing.status === 'active' && (
+                                PurchaseModal ? (
+                                  <PurchaseModal
+                                    listing={listing}
+                                    trigger={
+                                      <Button size="sm">
+                                        <ShoppingCart className="w-4 h-4" />
+                                      </Button>
+                                    }
+                                    onSuccess={() => {
+                                      // Refresh the page or refetch data
+                                      window.location.reload();
+                                    }}
+                                  />
+                                ) : onPurchase ? (
+                                  <Button 
+                                    size="sm" 
+                                    onClick={() => onPurchase(listing)}
+                                  >
+                                    <ShoppingCart className="w-4 h-4" />
+                                  </Button>
+                                ) : null
                               )}
 
                               {onEdit && listing.status === 'active' && (
@@ -364,10 +381,25 @@ export default function ListingTable({
                               </Link>
                             </Button>
 
-                            {onPurchase && listing.status === 'active' && (
-                              <Button size="sm" onClick={() => onPurchase(listing)}>
-                                <ShoppingCart className="w-4 h-4" />
-                              </Button>
+                            {listing.status === 'active' && (
+                              PurchaseModal ? (
+                                <PurchaseModal
+                                  listing={listing}
+                                  trigger={
+                                    <Button size="sm">
+                                      <ShoppingCart className="w-4 h-4" />
+                                    </Button>
+                                  }
+                                  onSuccess={() => {
+                                    // Refresh the page or refetch data
+                                    window.location.reload();
+                                  }}
+                                />
+                              ) : onPurchase ? (
+                                <Button size="sm" onClick={() => onPurchase(listing)}>
+                                  <ShoppingCart className="w-4 h-4" />
+                                </Button>
+                              ) : null
                             )}
                           </div>
                         </div>

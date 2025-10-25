@@ -10,6 +10,7 @@ import { Badge } from '../../components/ui/badge';
 import { useWalletAuth } from '../../hooks/useWalletAuth';
 import { useGasless } from '../../hooks/useGasless';
 import { useToast } from '../../hooks/useToast';
+import PurchaseModal from '../../components/PurchaseModal';
 import { formatPrice } from '../../utils/formatters';
 import { ShoppingBag, TrendingUp, DollarSign, Users } from 'lucide-react';
 
@@ -36,29 +37,9 @@ export default function MarketplacePage() {
   const listings = (listingsResponse?.data as unknown as any[]) || [];
   const stats = (statsResponse?.data as unknown as any) || {};
 
-  const handlePurchase = async (listing: any) => {
-    if (!isAuthenticated) {
-      toast({
-        title: 'Authentication Required',
-        description: 'Please connect your wallet to purchase cars',
-        variant: 'destructive',
-      });
-      return;
-    }
-
-    try {
-      const useEscrow = confirm(
-        'Use escrow for this purchase?\n\nEscrow provides additional security for high-value transactions.'
-      );
-
-      await purchaseCar({
-        listingId: listing.listingId.toString(),
-        price: listing.price,
-        useEscrow,
-      });
-    } catch (error) {
-      console.error('Purchase error:', error);
-    }
+  const handlePurchase = (listing: any) => {
+    // This will be handled by PurchaseModal
+    console.log('Opening purchase modal for listing:', listing);
   };
 
   return (

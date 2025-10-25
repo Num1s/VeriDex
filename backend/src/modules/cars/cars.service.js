@@ -35,13 +35,44 @@ class CarsService {
         throw new Error('User not found');
       }
 
-      // Check if VIN already exists
+      // Check if VIN already exists and is tokenized
+      const existingTokenizedCar = await Car.findOne({
+        where: { 
+          vin: vinValidation.formatted,
+          tokenId: { [Op.ne]: null } // Only block if already tokenized
+        }
+      });
+
+      if (existingTokenizedCar) {
+        throw new Error('Car with this VIN is already tokenized');
+      }
+
+      // Check if VIN exists but not tokenized (allow retry)
       const existingCar = await Car.findOne({
-        where: { vin: vinValidation.formatted }
+        where: { 
+          vin: vinValidation.formatted,
+          tokenId: null
+        }
       });
 
       if (existingCar) {
-        throw new Error('Car with this VIN already exists');
+        console.log('🔄 Found existing car with VIN, updating data for retry...');
+        // Update existing car data
+        await existingCar.update({
+          make: carData.make,
+          model: carData.model,
+          year: carData.year,
+          color: carData.color,
+          mileage: carData.mileage,
+          engineType: carData.engineType,
+          transmission: carData.transmission,
+          fuelType: carData.fuelType,
+          description: carData.description,
+          ownerAddress: user.walletAddress,
+          createdBy: userId,
+          verificationStatus: 'pending'
+        });
+        console.log('✅ Updated existing car data');
       }
 
       // Upload images to IPFS if provided
@@ -140,31 +171,45 @@ class CarsService {
         createdBy: userId,
       });
 
-      // Create car record in database
-      const car = await Car.create({
-        ownerAddress: user.walletAddress,
-        vin: vinValidation.formatted,
-        make: carData.make,
-        model: carData.model,
-        year: carData.year,
-        color: carData.color,
-        mileage: carData.mileage,
-        engineType: carData.engineType,
-        transmission: carData.transmission,
-        fuelType: carData.fuelType,
-        description: carData.description,
-        metadataURI,
-        images: imageHashes,
-        documents: carData.documents || [],
-        verificationStatus: 'pending',
-        createdBy: userId,
-        updatedBy: userId,
-      });
+      // Create or update car record in database
+      let car;
+      if (existingCar) {
+        // Update existing car with new metadata and images
+        await existingCar.update({
+          metadataURI,
+          images: imageHashes,
+          documents: carData.documents || [],
+          updatedBy: userId,
+        });
+        car = existingCar;
+        console.log('✅ Updated existing car with new metadata');
+      } else {
+        // Create new car record
+        car = await Car.create({
+          ownerAddress: user.walletAddress,
+          vin: vinValidation.formatted,
+          make: carData.make,
+          model: carData.model,
+          year: carData.year,
+          color: carData.color,
+          mileage: carData.mileage,
+          engineType: carData.engineType,
+          transmission: carData.transmission,
+          fuelType: carData.fuelType,
+          description: carData.description,
+          metadataURI,
+          images: imageHashes,
+          documents: carData.documents || [],
+          verificationStatus: 'pending',
+          createdBy: userId,
+          updatedBy: userId,
+        });
 
-      // Update user car count
-      await user.update({
-        totalCars: user.totalCars + 1,
-      });
+        // Update user car count only for new cars
+        await user.update({
+          totalCars: user.totalCars + 1,
+        });
+      }
 
       return {
         car: {
@@ -608,6 +653,53 @@ class CarsService {
       };
     } catch (error) {
       console.error('Transfer ownership error:', error.message);
+      throw error;
+    }
+  }
+
+  /**
+   * Delete car (only if not tokenized)
+   * @param {string} carId - Car ID
+   * @param {string} userId - User ID
+   * @returns {Promise<Object>} - Deletion result
+   */
+  async deleteCar(carId, userId) {
+    try {
+      // Find car
+      const car = await Car.findByPk(carId);
+      if (!car) {
+        throw new Error('Car not found');
+      }
+
+      // Check ownership
+      const user = await User.findByPk(userId);
+      if (!user) {
+        throw new Error('User not found');
+      }
+
+      if (car.ownerAddress !== user.walletAddress) {
+        throw new Error('You can only delete your own cars');
+      }
+
+      // Check if car is tokenized
+      if (car.tokenId !== null) {
+        throw new Error('Cannot delete tokenized car. Transfer ownership instead.');
+      }
+
+      // Delete car
+      await car.destroy();
+
+      // Update user car count
+      await user.update({
+        totalCars: Math.max(0, user.totalCars - 1),
+      });
+
+      return {
+        carId: carId,
+        deletedAt: new Date().toISOString(),
+      };
+    } catch (error) {
+      console.error('Delete car error:', error.message);
       throw error;
     }
   }

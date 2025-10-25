@@ -340,6 +340,29 @@ class CarsController {
       next(error);
     }
   }
+
+  /**
+   * Delete car (only if not tokenized)
+   * @param {Object} req - Express request object
+   * @param {Object} res - Express response object
+   * @param {Function} next - Express next function
+   */
+  async deleteCar(req, res, next) {
+    try {
+      const { id } = req.params;
+      const { userId } = req.user;
+
+      const result = await carsService.deleteCar(id, userId);
+
+      res.status(200).json({
+        success: true,
+        message: 'Car deleted successfully',
+        data: result,
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
 }
 
 const carsController = new CarsController();

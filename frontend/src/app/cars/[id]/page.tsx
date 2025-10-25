@@ -9,6 +9,7 @@ import { Badge } from '../../../components/ui/badge';
 import { useWalletAuth } from '../../../hooks/useWalletAuth';
 import { useGasless } from '../../../hooks/useGasless';
 import { carsAPI, marketplaceAPI } from '../../../services/api';
+import CreateListingModal from '../../../components/CreateListingModal';
 import VerificationBadge from '../../../components/VerificationBadge';
 import { formatAddress, formatCarName, formatDate, formatPrice } from '../../../utils/formatters';
 import {
@@ -513,10 +514,27 @@ export default function CarDetailPage() {
 
               <CardContent className="space-y-3">
                 {isOwner && !isListed && isVerified && (
-                  <Button className="w-full" onClick={handleListCar}>
-                    <ShoppingCart className="w-4 h-4 mr-2" />
-                    List for Sale
-                  </Button>
+                  <CreateListingModal
+                    car={{
+                      id: car.id,
+                      tokenId: car.tokenId,
+                      make: car.make,
+                      model: car.model,
+                      year: car.year,
+                      vin: car.vin,
+                      verificationStatus: car.verificationStatus,
+                    }}
+                    trigger={
+                      <Button className="w-full">
+                        <ShoppingCart className="w-4 h-4 mr-2" />
+                        List for Sale
+                      </Button>
+                    }
+                    onSuccess={() => {
+                      // Refresh car data
+                      window.location.reload();
+                    }}
+                  />
                 )}
 
                 {isOwner && isListed && (

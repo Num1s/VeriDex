@@ -32,10 +32,14 @@ export default function HomePage() {
       console.log('🔍 Fetching listings with filters:', filters);
       const response = await marketplaceAPI.getListings(filters);
       console.log('📦 Listings API response:', response);
-      console.log('🚗 Total listings:', response?.data?.length || 0);
+      console.log('🚗 Total listings:', Array.isArray(response?.data) ? response.data.length : 0);
       return response;
     },
     enabled: true,
+    refetchOnMount: false,
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: false,
+    staleTime: 5 * 60 * 1000, // 5 minutes
   });
 
   // Extract data from response (axios wraps it in .data)

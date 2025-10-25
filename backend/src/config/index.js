@@ -12,10 +12,10 @@ const config = {
   database: {
     host: process.env.DB_HOST || 'localhost',
     port: parseInt(process.env.DB_PORT) || 5432,
-    name: process.env.DB_NAME || 'autotoken.db',
+    name: process.env.DB_NAME || 'autotoken',
     user: process.env.DB_USER || 'postgres',
     password: process.env.DB_PASSWORD || 'password',
-    dialect: process.env.DB_DIALECT || 'sqlite',
+    dialect: process.env.DB_DIALECT || 'postgres',
     logging: process.env.NODE_ENV === 'development' ? console.log : false,
   },
 
@@ -44,7 +44,6 @@ const config = {
   // IPFS Configuration
   ipfs: {
     gateway: process.env.IPFS_GATEWAY || 'https://gateway.pinata.cloud/ipfs/',
-    pinataJwt: process.env.PINATA_JWT || '',
     pinataApiKey: process.env.PINATA_API_KEY || '',
     pinataSecretKey: process.env.PINATA_SECRET_KEY || '',
   },
@@ -70,9 +69,14 @@ const config = {
 
   // CORS Configuration
   cors: {
-    origin: process.env.NODE_ENV === 'production'
-      ? process.env.FRONTEND_URL || 'http://10.208.0.158:3000'
-      : ['http://localhost:3000', 'http://localhost:3001', 'http://localhost:3002', 'http://localhost:3003', 'http://10.208.0.158:3000', 'http://10.208.0.158:3001'],
+    origin: [
+      'http://localhost:3000',
+      'http://localhost:3001',
+      'http://0.0.0.0:3000',
+      'http://0.0.0.0:3001',
+      'http://10.208.0.158:3000',
+      'http://10.208.0.158:3001',
+    ],
     credentials: true,
   },
 
@@ -86,10 +90,10 @@ const config = {
     etherscan: process.env.ETHERSCAN_API_KEY || '',
   },
 
-  // Rate Limiting
+  // Rate Limiting (disabled in development for testing)
   rateLimit: {
-    windowMs: 1 * 60 * 1000, // 1 minute (для разработки)
-    max: 1000, // limit each IP to 1000 requests per windowMs (для разработки)
+    windowMs: 1 * 60 * 1000, // 1 minute
+    max: 1000, // 1000 requests per minute (very high for development)
   },
 
   // Security

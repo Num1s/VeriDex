@@ -5,9 +5,10 @@ import { Badge } from './ui/badge';
 import { Button } from './ui/button';
 import { formatAddress, formatCarName, formatPrice, formatDate } from '../utils/formatters';
 import { formatVerificationStatus, formatListingStatus } from '../utils/formatters';
-import { Eye, ShoppingCart, User, Send } from 'lucide-react';
+import { Eye, ShoppingCart, User, Send, DollarSign } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
+import CreateListingModal from './CreateListingModal';
 
 interface CarCardProps {
   car: {
@@ -38,8 +39,10 @@ interface CarCardProps {
   showPrice?: boolean;
   compact?: boolean;
   showTransfer?: boolean;
+  showListButton?: boolean;
   onPurchase?: (carId: string) => void;
   onTransfer?: (carId: string) => void;
+  onListSuccess?: () => void;
 }
 
 export default function CarCard({
@@ -48,8 +51,10 @@ export default function CarCard({
   showPrice = true,
   compact = false,
   showTransfer = false,
+  showListButton = false,
   onPurchase,
   onTransfer,
+  onListSuccess,
 }: CarCardProps) {
   const verificationStatus = formatVerificationStatus(car.verificationStatus);
   const mainImage = car.images?.[0]?.url || '/placeholder-car.jpg';
@@ -93,7 +98,7 @@ export default function CarCard({
               <div className="flex items-center justify-between">
                 {showPrice && (car.listingPrice || car.price) && (
                   <div className="font-medium text-sm">
-                    {formatPrice(car.listingPrice || car.price)}
+                    {formatPrice(car.listingPrice || car.price || '0')}
                   </div>
                 )}
 
@@ -151,7 +156,7 @@ export default function CarCard({
           {showPrice && (car.listingPrice || car.price) && (
             <div className="absolute bottom-2 right-2">
               <Badge className="bg-gradient-to-r from-purple-600 to-blue-600 text-white text-lg font-bold px-4 py-2 shadow-xl border-2 border-white">
-                {formatPrice(car.listingPrice || car.price)}
+                {formatPrice(car.listingPrice || car.price || '0')}
               </Badge>
             </div>
           )}
@@ -217,6 +222,27 @@ export default function CarCard({
                 <Send className="w-4 h-4 mr-2" />
                 Transfer
               </Button>
+            )}
+
+            {showListButton && car.verificationStatus === 'approved' && !car.isListed && car.tokenId && (
+              <CreateListingModal
+                car={{
+                  id: car.id,
+                  tokenId: car.tokenId,
+                  make: car.make,
+                  model: car.model,
+                  year: car.year,
+                  vin: car.vin,
+                  verificationStatus: car.verificationStatus,
+                }}
+                trigger={
+                  <Button className="flex-1 bg-green-600 hover:bg-green-700">
+                    <DollarSign className="w-4 h-4 mr-2" />
+                    List for Sale
+                  </Button>
+                }
+                onSuccess={onListSuccess}
+              />
             )}
           </div>
 
