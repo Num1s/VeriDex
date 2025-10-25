@@ -17,7 +17,7 @@ export const metadata: Metadata = {
     address: false,
     telephone: false,
   },
-  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'),
+      metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || 'http://10.208.0.158:3000'),
   openGraph: {
     title: 'AutoToken - Gas-Free Car Tokenization',
     description: 'Tokenize your car as an NFT with zero gas fees using Status Network and Linea zkEVM',

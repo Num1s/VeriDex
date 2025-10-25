@@ -75,7 +75,7 @@ export const NETWORKS = {
   hardhat: {
     ...hardhat,
     name: 'Hardhat Local',
-    blockExplorer: 'http://localhost:8545',
+    blockExplorer: 'http://10.208.0.158:8545',
   },
 };
 
@@ -102,7 +102,7 @@ export const GASLESS_CONFIG = {
 
   // Relayer service URLs
   relayerUrls: {
-    31337: 'http://localhost:3001/api/gasless',
+    31337: 'http://10.208.0.158:3001/api/gasless',
     59140: 'https://api.autotoken.com/api/gasless',
     1946: 'https://api.autotoken.com/api/gasless',
   },
@@ -118,7 +118,7 @@ export const GASLESS_CONFIG = {
 
 // API configuration
 export const API_CONFIG = {
-  baseURL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api',
+      baseURL: process.env.NEXT_PUBLIC_API_URL || 'http://10.208.0.158:3001/api',
   timeout: 10000,
   retries: 3,
 };

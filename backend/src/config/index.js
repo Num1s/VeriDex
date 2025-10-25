@@ -71,8 +71,8 @@ const config = {
   // CORS Configuration
   cors: {
     origin: process.env.NODE_ENV === 'production'
-      ? process.env.FRONTEND_URL || 'http://localhost:3000'
-      : ['http://localhost:3000', 'http://localhost:3001', 'http://localhost:3002', 'http://localhost:3003'],
+      ? process.env.FRONTEND_URL || 'http://10.208.0.158:3000'
+      : ['http://localhost:3000', 'http://localhost:3001', 'http://localhost:3002', 'http://localhost:3003', 'http://10.208.0.158:3000', 'http://10.208.0.158:3001'],
     credentials: true,
   },
 
