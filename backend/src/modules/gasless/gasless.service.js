@@ -90,12 +90,12 @@ class GaslessService {
         // Save car to database
         const carDataToSave = {
           tokenId: mockTokenId,
-          vin: vinValidation.valid ? vinValidation.formatted : carData.vin,
+          vin: vinValidation.valid ? vinValidation.formatted : (carData.vin ? carData.vin.toUpperCase().substring(0, 17) : ''),
           make: carData.make,
           model: carData.model,
-          year: carData.year,
+          year: parseInt(carData.year) || new Date().getFullYear(),
           color: carData.color || '',
-          mileage: carData.mileage || 0,
+          mileage: parseInt(carData.mileage) || 0,
           engineType: carData.engineType || '',
           transmission: carData.transmission || '',
           fuelType: carData.fuelType || '',

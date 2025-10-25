@@ -129,23 +129,23 @@ export default function ProfilePage() {
   const stats = getUserStats();
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-purple-50">
       {/* Header */}
-      <header className="bg-white shadow-sm border-b">
+      <header className="bg-gradient-to-r from-purple-700 to-blue-700 shadow-lg border-b border-purple-600">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center gap-4">
-              <Button variant="ghost" onClick={() => router.push('/')}>
-                ← Back to Marketplace
+              <Button variant="ghost" onClick={() => router.push('/')} className="text-white hover:bg-white/20">
+                ← Back to Registry
               </Button>
-              <h1 className="text-2xl font-bold text-gray-900">My Profile</h1>
+              <h1 className="text-2xl font-bold text-white">My Assets</h1>
             </div>
 
             <div className="flex items-center gap-4">
               <Link href="/mint">
-                <Button>
+                <Button className="bg-white text-purple-700 hover:bg-gray-100 font-semibold">
                   <Plus className="w-4 h-4 mr-2" />
-                  Mint Car
+                  Tokenize Asset
                 </Button>
               </Link>
             </div>
@@ -155,16 +155,16 @@ export default function ProfilePage() {
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Profile Header */}
-        <Card className="mb-8">
-          <CardContent className="p-6">
+        <Card className="mb-8 shadow-xl border-2 border-purple-100">
+          <CardContent className="p-6 bg-gradient-to-r from-purple-50 to-blue-50">
             <div className="flex items-center gap-6">
-              <div className="w-20 h-20 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white text-2xl font-bold">
+              <div className="w-20 h-20 bg-gradient-to-br from-purple-600 to-blue-600 rounded-full flex items-center justify-center text-white text-2xl font-bold shadow-lg">
                 {user.firstName?.[0] || user.lastName?.[0] || address?.[0]?.toUpperCase() || 'U'}
               </div>
 
               <div className="flex-1">
                 <div className="flex items-center gap-3 mb-2">
-                  <h2 className="text-2xl font-bold">
+                  <h2 className="text-2xl font-bold text-gray-900">
                     {user.firstName || user.lastName
                       ? `${user.firstName || ''} ${user.lastName || ''}`.trim()
                       : formatAddress(address || '')
@@ -174,7 +174,7 @@ export default function ProfilePage() {
                   <div className="flex items-center gap-2">
                     <VerificationBadge status={user.isVerified ? 'approved' : 'pending'} />
                     {user.kycStatus === 'approved' && (
-                      <Badge variant="outline" className="text-green-600">
+                      <Badge variant="outline" className="text-green-700 bg-green-50 border-green-300 font-semibold">
                         <Award className="w-3 h-3 mr-1" />
                         KYC Verified
                       </Badge>
@@ -182,17 +182,17 @@ export default function ProfilePage() {
                   </div>
                 </div>
 
-                <div className="flex items-center gap-4 text-sm text-gray-600">
-                  <div className="flex items-center gap-1">
-                    <Wallet className="w-4 h-4" />
+                <div className="flex items-center gap-4 text-sm font-medium text-gray-700">
+                  <div className="flex items-center gap-1 bg-white px-3 py-1 rounded-full">
+                    <Wallet className="w-4 h-4 text-purple-600" />
                     {formatAddress(address || '')}
                   </div>
-                  <div className="flex items-center gap-1">
-                    <Award className="w-4 h-4" />
+                  <div className="flex items-center gap-1 bg-white px-3 py-1 rounded-full">
+                    <Award className="w-4 h-4 text-yellow-600" />
                     Reputation: {stats.reputationScore}/5.0
                   </div>
-                  <div className="flex items-center gap-1">
-                    <Calendar className="w-4 h-4" />
+                  <div className="flex items-center gap-1 bg-white px-3 py-1 rounded-full">
+                    <Calendar className="w-4 h-4 text-blue-600" />
                     Joined {formatDate(user.createdAt || new Date(), { month: 'short', year: 'numeric' })}
                   </div>
                 </div>
@@ -200,7 +200,7 @@ export default function ProfilePage() {
 
               <div className="flex gap-2">
                 <Link href="/profile/edit">
-                  <Button variant="outline">
+                  <Button variant="outline" className="border-2 border-purple-300 text-purple-700 hover:bg-purple-50 font-semibold">
                     <Settings className="w-4 h-4 mr-2" />
                     Edit Profile
                   </Button>
@@ -212,48 +212,48 @@ export default function ProfilePage() {
 
         {/* Stats Cards */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-8">
-          <Card>
+          <Card className="shadow-lg border-2 border-purple-100 hover:border-purple-300 transition-all">
             <CardContent className="p-6 text-center">
-              <Car className="w-8 h-8 mx-auto mb-2 text-blue-600" />
-              <div className="text-2xl font-bold">{stats.totalCars}</div>
-              <div className="text-sm text-gray-600">Total Cars</div>
+              <Car className="w-8 h-8 mx-auto mb-2 text-purple-600" />
+              <div className="text-3xl font-bold text-gray-900">{stats.totalCars}</div>
+              <div className="text-sm font-medium text-gray-600">Total Assets</div>
             </CardContent>
           </Card>
 
-          <Card>
+          <Card className="shadow-lg border-2 border-green-100 hover:border-green-300 transition-all">
             <CardContent className="p-6 text-center">
               <div className="w-8 h-8 mx-auto mb-2 text-green-600 bg-green-100 rounded-full flex items-center justify-center">
                 ✓
               </div>
-              <div className="text-2xl font-bold">{stats.verifiedCars}</div>
-              <div className="text-sm text-gray-600">Verified Cars</div>
+              <div className="text-3xl font-bold text-gray-900">{stats.verifiedCars}</div>
+              <div className="text-sm font-medium text-gray-600">Verified</div>
             </CardContent>
           </Card>
 
-          <Card>
+          <Card className="shadow-lg border-2 border-blue-100 hover:border-blue-300 transition-all">
             <CardContent className="p-6 text-center">
-              <ShoppingBag className="w-8 h-8 mx-auto mb-2 text-purple-600" />
-              <div className="text-2xl font-bold">{stats.activeListings}</div>
-              <div className="text-sm text-gray-600">Active Listings</div>
+              <ShoppingBag className="w-8 h-8 mx-auto mb-2 text-blue-600" />
+              <div className="text-3xl font-bold text-gray-900">{stats.activeListings}</div>
+              <div className="text-sm font-medium text-gray-600">Listed</div>
             </CardContent>
           </Card>
 
-          <Card>
+          <Card className="shadow-lg border-2 border-orange-100 hover:border-orange-300 transition-all">
             <CardContent className="p-6 text-center">
               <TrendingUp className="w-8 h-8 mx-auto mb-2 text-orange-600" />
-              <div className="text-2xl font-bold">5.0</div>
-              <div className="text-sm text-gray-600">Reputation</div>
+              <div className="text-3xl font-bold text-gray-900">5.0</div>
+              <div className="text-sm font-medium text-gray-600">Reputation</div>
             </CardContent>
           </Card>
         </div>
 
         {/* Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="grid w-full grid-cols-4">
-            <TabsTrigger value="overview">Overview</TabsTrigger>
-            <TabsTrigger value="cars">My Cars</TabsTrigger>
-            <TabsTrigger value="listings">My Listings</TabsTrigger>
-            <TabsTrigger value="transactions">Transactions</TabsTrigger>
+          <TabsList className="grid w-full grid-cols-4 bg-white border-2 border-purple-100 p-1">
+            <TabsTrigger value="overview" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-600 data-[state=active]:to-blue-600 data-[state=active]:text-white font-semibold">Overview</TabsTrigger>
+            <TabsTrigger value="cars" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-600 data-[state=active]:to-blue-600 data-[state=active]:text-white font-semibold">My Assets</TabsTrigger>
+            <TabsTrigger value="listings" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-600 data-[state=active]:to-blue-600 data-[state=active]:text-white font-semibold">Listed</TabsTrigger>
+            <TabsTrigger value="transactions" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-600 data-[state=active]:to-blue-600 data-[state=active]:text-white font-semibold">Activity</TabsTrigger>
           </TabsList>
 
           {/* Overview Tab */}
@@ -333,14 +333,14 @@ export default function ProfilePage() {
 
           {/* Cars Tab */}
           <TabsContent value="cars">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Car className="w-5 h-5" />
-                  My Cars ({userCars.length})
+            <Card className="shadow-xl border-2 border-purple-100">
+              <CardHeader className="bg-gradient-to-r from-purple-50 to-blue-50">
+                <CardTitle className="flex items-center gap-2 text-purple-900">
+                  <Car className="w-5 h-5 text-purple-600" />
+                  My Assets ({userCars.length})
                 </CardTitle>
               </CardHeader>
-              <CardContent>
+              <CardContent className="bg-white">
                 {carsLoading ? (
                   <div className="text-center py-8">Loading cars...</div>
                 ) : userCars.length > 0 ? (

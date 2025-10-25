@@ -286,6 +286,7 @@ class CarsService {
       const offset = filters.offset || 0;
 
       console.log('Querying cars with whereClause:', JSON.stringify(whereClause));
+      console.log('User wallet address:', user.walletAddress);
       
       const cars = await Car.findAll({
         where: whereClause,
@@ -295,6 +296,7 @@ class CarsService {
       });
 
       console.log('Found', cars.length, 'cars in database for user:', userId);
+      console.log('Cars ownerAddresses:', cars.map(c => c.ownerAddress));
 
       // Format cars for response
       const formattedCars = cars.map(car => ({
