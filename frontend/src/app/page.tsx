@@ -70,52 +70,53 @@ export default function HomePage() {
 
   return (
     <Layout>
-      <div className="bg-gradient-to-br from-gray-50 to-purple-50 min-h-screen">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="bg-gradient-to-br from-gray-50 via-primary-50/20 to-accent-50/20 min-h-screen">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         {/* Hero Section */}
-        <div className="text-center mb-12">
-          <div className="inline-block px-4 py-2 bg-purple-100 text-purple-800 rounded-full text-sm font-semibold mb-4">
-            🌐 Real-World Assets Hub
+        <div className="text-center mb-16">
+          <div className="inline-flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-primary-100 to-accent-100 text-primary-800 rounded-full text-sm font-semibold mb-6 shadow-sm">
+            <span className="w-2 h-2 bg-accent-500 rounded-full animate-pulse"></span>
+            Decentralized Exchange · Verified Value
           </div>
-          <h2 className="text-4xl font-bold text-gray-900 mb-4">
+          <h2 className="text-5xl md:text-6xl font-bold text-gray-900 mb-6 tracking-tight">
             Tokenize Real Assets, Own Your Digital Future
           </h2>
           <p className="text-xl text-gray-600 mb-8">
             Transform physical assets into blockchain tokens. Transparent ownership, immutable records, zero gas fees.
           </p>
 
-          <div className="flex justify-center gap-8 mb-8">
+          <div className="flex justify-center gap-12 mb-10">
             <div className="text-center">
-              <div className="text-3xl font-bold text-primary">{totalListings}</div>
-              <div className="text-sm text-gray-500">Tokenized Assets</div>
+              <div className="text-4xl font-bold bg-gradient-to-r from-primary-600 to-primary-800 bg-clip-text text-transparent">{totalListings}</div>
+              <div className="text-sm text-gray-600 font-medium mt-1">Tokenized Assets</div>
             </div>
             <div className="text-center">
-              <div className="text-3xl font-bold text-green-600">0 ETH</div>
-              <div className="text-sm text-gray-500">Gas Fees</div>
+              <div className="text-4xl font-bold bg-gradient-to-r from-accent-600 to-accent-800 bg-clip-text text-transparent">0 ETH</div>
+              <div className="text-sm text-gray-600 font-medium mt-1">Gas Fees</div>
             </div>
             <div className="text-center">
-              <div className="text-3xl font-bold text-blue-600">100%</div>
-              <div className="text-sm text-gray-500">On-Chain Verified</div>
+              <div className="text-4xl font-bold bg-gradient-to-r from-primary-600 to-accent-600 bg-clip-text text-transparent">100%</div>
+              <div className="text-sm text-gray-600 font-medium mt-1">On-Chain Verified</div>
             </div>
           </div>
 
           <div className="flex justify-center gap-4">
             <Link href="/mint">
-              <Button size="lg" className="text-lg px-8 py-6 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white shadow-lg hover:shadow-xl transition-all">
-                <Plus className="w-5 h-5 mr-2" /> Tokenize Asset
+              <Button size="lg" className="text-base px-8 py-6 h-auto gradient-mixed text-white shadow-primary hover:shadow-xl">
+                <Plus className="w-5 h-5 mr-2" /> Tokenize Your Asset
               </Button>
             </Link>
-            <Button size="lg" variant="outline" className="text-lg px-8 py-6 border-2 border-purple-600 text-purple-700 hover:bg-purple-50 font-semibold shadow-md">
+            <Button size="lg" variant="outline" className="text-base px-8 py-6 h-auto">
               Explore Registry
             </Button>
           </div>
         </div>
 
         {/* Asset Registry */}
-        <Card className="mb-8 shadow-xl border-2 border-purple-100">
-          <CardHeader className="bg-gradient-to-r from-purple-50 to-blue-50">
-            <CardTitle className="flex items-center gap-2 text-purple-900">
-              <Filter className="w-5 h-5 text-purple-600" />
+        <Card className="mb-8 shadow-md">
+          <CardHeader className="bg-gradient-to-r from-primary-50/50 to-accent-50/50 border-b border-gray-100">
+            <CardTitle className="flex items-center gap-2 text-gray-900 text-xl">
+              <Filter className="w-5 h-5 text-primary-600" />
               Asset Registry Filters
             </CardTitle>
           </CardHeader>
@@ -168,16 +169,16 @@ export default function HomePage() {
               </div>
             </div>
 
-            <div className="flex justify-between items-center mt-4">
+            <div className="flex justify-between items-center mt-6 pt-4 border-t border-gray-100">
               <div className="flex gap-2">
-                <Button variant="outline" onClick={clearFilters} className="border-2 border-purple-300 text-purple-700 hover:bg-purple-50 font-semibold">
+                <Button variant="secondary" onClick={clearFilters}>
                   Clear Filters
                 </Button>
               </div>
 
-              <div className="text-sm font-semibold text-gray-700 bg-gray-100 px-3 py-1 rounded-full">
+              <Badge variant="secondary" className="text-sm px-4 py-1.5">
                 Showing {listings.length} assets
-              </div>
+              </Badge>
             </div>
           </CardContent>
         </Card>

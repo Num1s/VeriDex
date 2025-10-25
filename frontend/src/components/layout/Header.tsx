@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useRouter, usePathname } from 'next/navigation';
 import { Button } from '../ui/button';
 import { Badge } from '../ui/badge';
@@ -14,7 +15,8 @@ import {
   ShoppingBag,
   Shield,
   Menu,
-  X
+  X,
+  Zap
 } from 'lucide-react';
 
 export default function Header() {
@@ -31,27 +33,37 @@ export default function Header() {
   ];
 
   return (
-    <header className="bg-gradient-to-r from-purple-700 to-blue-700 shadow-lg border-b border-purple-600 sticky top-0 z-50">
+    <header className="bg-white border-b border-gray-200 sticky top-0 z-50 shadow-sm">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-16">
+        <div className="flex justify-between items-center h-20">
           {/* Logo */}
-          <div className="flex items-center gap-4">
-            <Link href="/" className="flex items-center gap-2">
-              <div className="w-10 h-10 bg-white rounded-lg flex items-center justify-center shadow-md">
-                <span className="text-purple-700 font-bold text-lg">V</span>
+          <div className="flex items-center gap-6">
+            <Link href="/" className="flex items-center gap-3 group">
+              <div className="relative w-12 h-12 rounded-xl overflow-hidden shadow-md group-hover:shadow-lg transition-shadow">
+                <Image 
+                  src="/logo.png" 
+                  alt="VeriDex Logo" 
+                  fill
+                  className="object-contain p-1"
+                />
               </div>
               <div>
-                <h1 className="text-xl font-bold text-white">Veridex</h1>
-                <p className="text-xs text-purple-200 -mt-1">RWA Hub</p>
+                <h1 className="text-2xl font-bold bg-gradient-to-r from-primary-600 to-accent-600 bg-clip-text text-transparent">
+                  VeriDex
+                </h1>
+                <p className="text-xs text-gray-500 font-medium tracking-wide -mt-1">
+                  DECENTRALIZED EXCHANGE
+                </p>
               </div>
             </Link>
-            <Badge className="hidden sm:inline-flex bg-green-500 text-white border-none font-semibold">
-              ⚡ Gas-Free
+            <Badge className="hidden sm:inline-flex bg-accent-100 text-accent-700 border border-accent-300 font-semibold px-3 py-1">
+              <Zap className="w-3 h-3 mr-1" />
+              Gas-Free
             </Badge>
           </div>
 
           {/* Desktop Navigation */}
-          <nav className="hidden md:flex items-center gap-6">
+          <nav className="hidden md:flex items-center gap-2">
             {navigation.map((item) => {
               const Icon = item.icon;
               const isActive = pathname === item.href;
@@ -60,10 +72,10 @@ export default function Header() {
                 <Link
                   key={item.name}
                   href={item.href}
-                  className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-all ${
+                  className={`flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-all ${
                     isActive
-                      ? 'bg-white text-purple-700 shadow-md'
-                      : 'text-white hover:bg-white/20 hover:shadow-md'
+                      ? 'bg-primary-500 text-white shadow-primary'
+                      : 'text-gray-700 hover:bg-gray-100 hover:text-primary-600'
                   }`}
                 >
                   <Icon className="w-4 h-4" />
@@ -83,7 +95,7 @@ export default function Header() {
             <Button
               variant="ghost"
               size="sm"
-              className="text-white hover:bg-white/20"
+              className="text-gray-700 hover:bg-gray-100"
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
             >
               {isMobileMenuOpen ? (
@@ -97,7 +109,7 @@ export default function Header() {
 
         {/* Mobile Navigation */}
         {isMobileMenuOpen && (
-          <div className="md:hidden border-t border-purple-500 bg-purple-800">
+          <div className="md:hidden border-t border-gray-200 bg-gray-50">
             <div className="px-2 pt-2 pb-3 space-y-1">
               {navigation.map((item) => {
                 const Icon = item.icon;
@@ -107,10 +119,10 @@ export default function Header() {
                   <Link
                     key={item.name}
                     href={item.href}
-                    className={`flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-semibold transition-all ${
+                    className={`flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all ${
                       isActive
-                        ? 'bg-white text-purple-700 shadow-md'
-                        : 'text-white hover:bg-white/20'
+                        ? 'bg-primary-500 text-white shadow-primary'
+                        : 'text-gray-700 hover:bg-gray-100'
                     }`}
                     onClick={() => setIsMobileMenuOpen(false)}
                   >
@@ -121,7 +133,7 @@ export default function Header() {
               })}
 
               {/* Mobile Wallet Connect */}
-              <div className="pt-4 border-t">
+              <div className="pt-4 border-t border-gray-300">
                 <WalletConnect variant="compact" />
               </div>
             </div>

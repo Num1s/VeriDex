@@ -36,11 +36,11 @@ export const CONTRACT_ADDRESSES = {
   },
   // Hardhat Local
   31337: {
-    carNFT: '0x5FbDB2315678afecb367f032d93F642f64180aa3' as Address,
-    marketplace: '0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512' as Address,
-    escrow: '0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0' as Address,
-    verifierOracle: '0xCf7Ed3AccA5a467e9e704C703E8D87F634fB0Fc9' as Address,
-    trustedForwarder: '0xDc64a140Aa3E981100a9becA4E685f962f0cF6C9' as Address,
+    carNFT: '0xEC7cb8C3EBE77BA6d284F13296bb1372A8522c5F' as Address,
+    marketplace: '0x5f246ADDCF057E0f778CD422e20e413be70f9a0c' as Address,
+    escrow: '0x3C2BafebbB0c8c58f39A976e725cD20D611d01e9' as Address,
+    verifierOracle: '0xaD82Ecf79e232B0391C5479C7f632aA1EA701Ed1' as Address,
+    trustedForwarder: '0x876939152C56362e17D508B9DEA77a3fDF9e4083' as Address,
   },
 };
 

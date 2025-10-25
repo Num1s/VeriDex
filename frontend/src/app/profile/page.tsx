@@ -143,9 +143,9 @@ export default function ProfilePage() {
   const stats = getUserStats();
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-purple-50">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-primary-50/20 to-accent-50/20">
       {/* Header */}
-      <header className="bg-gradient-to-r from-purple-700 to-blue-700 shadow-lg border-b border-purple-600">
+      <header className="gradient-mixed shadow-lg border-b border-primary-700">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center gap-4">
@@ -169,10 +169,10 @@ export default function ProfilePage() {
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Profile Header */}
-        <Card className="mb-8 shadow-xl border-2 border-purple-100">
-          <CardContent className="p-6 bg-gradient-to-r from-purple-50 to-blue-50">
+        <Card className="mb-8 shadow-md">
+          <CardContent className="p-6 bg-gradient-to-r from-primary-50/30 to-accent-50/30">
             <div className="flex items-center gap-6">
-              <div className="w-20 h-20 bg-gradient-to-br from-purple-600 to-blue-600 rounded-full flex items-center justify-center text-white text-2xl font-bold shadow-lg">
+              <div className="w-20 h-20 gradient-primary rounded-full flex items-center justify-center text-white text-2xl font-bold shadow-primary">
                 {user.firstName?.[0] || user.lastName?.[0] || address?.[0]?.toUpperCase() || 'U'}
               </div>
 

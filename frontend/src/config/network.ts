@@ -95,7 +95,7 @@ export const DEFAULT_CHAIN = NETWORKS.hardhat; // Use hardhat for development
 export const GASLESS_CONFIG = {
   // Trusted forwarder addresses
   trustedForwarders: {
-    31337: '0xDc64a140Aa3E981100a9becA4E685f962f0cF6C9', // Hardhat
+    31337: '0x876939152C56362e17D508B9DEA77a3fDF9e4083', // Hardhat - GaslessMetaTx
     59140: '0x0000000000000000000000000000000000000000', // Linea (to be updated)
     1946: '0x0000000000000000000000000000000000000000', // Status (to be updated)
   },

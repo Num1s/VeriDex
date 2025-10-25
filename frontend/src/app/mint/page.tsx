@@ -279,7 +279,7 @@ export default function MintPage() {
                 {/* Submit Button */}
                 <Button
                   type="submit"
-                  className="w-full text-lg py-6 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white shadow-lg hover:shadow-xl transition-all font-bold"
+                  className="w-full text-lg py-6 gradient-mixed text-white shadow-primary hover:shadow-xl transition-all font-bold h-auto"
                   disabled={!isValid || isMinting}
                 >
                   {isMinting ? (
