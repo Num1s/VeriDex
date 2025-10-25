@@ -45,16 +45,30 @@ export default function ProfilePage() {
   }, [user, isAuthenticated, address]);
 
   // Fetch user's cars
-  const { data: carsResponse, isLoading: carsLoading, refetch: refetchCars } = useQuery({
+  const { data: carsResponse, isLoading: carsLoading, refetch: refetchCars, error: carsError } = useQuery({
     queryKey: ['user-cars'],
     queryFn: async () => {
       console.log('📍 Fetching cars for address:', address);
       const response = await carsAPI.getUserCars();
       console.log('🚗 Cars API response:', response);
+      console.log('🚗 Cars API response.data:', response.data);
+      console.log('🚗 Cars API response.data.data:', response.data?.data);
       return response;
     },
     enabled: isAuthenticated,
   });
+  
+  // Debug cars data
+  useEffect(() => {
+    if (carsResponse) {
+      console.log('🔍 carsResponse:', carsResponse);
+      console.log('🔍 carsResponse.data:', carsResponse.data);
+      console.log('🔍 carsResponse.data.data:', carsResponse.data?.data);
+    }
+    if (carsError) {
+      console.error('❌ Cars error:', carsError);
+    }
+  }, [carsResponse, carsError]);
 
   // Handle transfer
   const handleTransferClick = (carId: string) => {
@@ -85,8 +99,8 @@ export default function ProfilePage() {
     enabled: isAuthenticated,
   });
 
-  const userCars = Array.isArray(carsResponse?.data) ? carsResponse.data : [];
-  const userListings = Array.isArray(listingsResponse?.data) ? listingsResponse.data : [];
+  const userCars = Array.isArray(carsResponse?.data?.data) ? carsResponse.data.data : [];
+  const userListings = Array.isArray(listingsResponse?.data?.data) ? listingsResponse.data.data : [];
 
   // Redirect if not authenticated
   if (!isAuthenticated || !user) {

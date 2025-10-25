@@ -45,6 +45,7 @@ export default function CarDetailPage() {
   const { listCar, purchaseCar } = useGasless();
   const [isOwner, setIsOwner] = useState(false);
   const [isListed, setIsListed] = useState(false);
+  const [selectedImageIndex, setSelectedImageIndex] = useState(0);
 
   // Fetch car details
   const { data: carResponse, isLoading } = useQuery({
@@ -127,7 +128,8 @@ export default function CarDetailPage() {
     );
   }
 
-  const mainImage = car.images?.[0]?.url || '/placeholder-car.jpg';
+  const carImages = car.images && car.images.length > 0 ? car.images : [{ url: '/placeholder-car.jpg', filename: 'placeholder' }];
+  const mainImage = carImages[selectedImageIndex]?.url || '/placeholder-car.jpg';
   const isVerified = car.verificationStatus === 'approved';
 
   return (
@@ -156,50 +158,87 @@ export default function CarDetailPage() {
           {/* Main Content */}
           <div className="lg:col-span-2 space-y-8">
             {/* Image Gallery */}
-            <Card>
+            <Card className="overflow-hidden">
               <CardContent className="p-0">
-                <div className="relative aspect-video w-full overflow-hidden rounded-t-lg bg-gray-100">
+                <div className="relative aspect-video w-full overflow-hidden bg-gradient-to-br from-gray-900 to-gray-700">
                   <Image
                     src={mainImage}
                     alt={formatCarName(car)}
                     fill
-                    className="object-cover"
+                    className="object-contain"
                   />
 
                   {/* Status overlay */}
-                  <div className="absolute top-4 left-4">
+                  <div className="absolute top-4 left-4 flex gap-2">
                     <VerificationBadge status={car.verificationStatus} />
+                    {car.isListed && (
+                      <Badge className="bg-green-600 text-white font-semibold shadow-lg">
+                        🟢 Available for Sale
+                      </Badge>
+                    )}
                   </div>
-
-                  {car.isListed && (
-                    <div className="absolute top-4 right-4">
-                      <Badge className="bg-green-600 text-white">Listed</Badge>
-                    </div>
-                  )}
 
                   {/* Price overlay */}
                   {car.listingPrice && (
                     <div className="absolute bottom-4 right-4">
-                      <Badge className="bg-black/80 text-white text-lg font-bold px-4 py-2">
+                      <Badge className="bg-gradient-to-r from-green-600 to-emerald-600 text-white text-xl font-bold px-6 py-3 shadow-2xl border-2 border-white">
                         {formatPrice(car.listingPrice)}
                       </Badge>
                     </div>
                   )}
+
+                  {/* Image counter */}
+                  {carImages.length > 1 && (
+                    <div className="absolute top-4 right-4">
+                      <Badge variant="outline" className="bg-black/70 text-white border-white">
+                        <ImageIcon className="w-3 h-3 mr-1" />
+                        {selectedImageIndex + 1} / {carImages.length}
+                      </Badge>
+                    </div>
+                  )}
+
+                  {/* Navigation arrows */}
+                  {carImages.length > 1 && (
+                    <>
+                      <button
+                        onClick={() => setSelectedImageIndex((prev) => (prev === 0 ? carImages.length - 1 : prev - 1))}
+                        className="absolute left-2 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white p-2 rounded-full transition-all"
+                        aria-label="Previous image"
+                      >
+                        ‹
+                      </button>
+                      <button
+                        onClick={() => setSelectedImageIndex((prev) => (prev === carImages.length - 1 ? 0 : prev + 1))}
+                        className="absolute right-2 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white p-2 rounded-full transition-all"
+                        aria-label="Next image"
+                      >
+                        ›
+                      </button>
+                    </>
+                  )}
                 </div>
 
                 {/* Image thumbnails */}
-                {car.images && car.images.length > 1 && (
-                  <div className="p-4 border-t">
-                    <div className="flex gap-2 overflow-x-auto">
-                      {car.images?.map((image: any, index: number) => (
-                        <div key={index} className="relative w-20 h-20 rounded-lg overflow-hidden bg-gray-100 flex-shrink-0">
+                {carImages.length > 1 && (
+                  <div className="p-4 border-t bg-gray-50">
+                    <div className="flex gap-2 overflow-x-auto pb-2">
+                      {carImages.map((image: any, index: number) => (
+                        <button
+                          key={index}
+                          onClick={() => setSelectedImageIndex(index)}
+                          className={`relative w-20 h-20 rounded-lg overflow-hidden bg-gray-200 flex-shrink-0 border-2 transition-all ${
+                            selectedImageIndex === index
+                              ? 'border-purple-600 shadow-lg scale-105'
+                              : 'border-gray-300 hover:border-purple-400'
+                          }`}
+                        >
                           <Image
                             src={image.url}
                             alt={`${formatCarName(car)} - Image ${index + 1}`}
                             fill
                             className="object-cover"
                           />
-                        </div>
+                        </button>
                       ))}
                     </div>
                   </div>
@@ -207,134 +246,233 @@ export default function CarDetailPage() {
               </CardContent>
             </Card>
 
+            {/* Car Header - Title and Main Info */}
+            <Card className="border-2 border-purple-200">
+              <CardContent className="p-6">
+                <div className="space-y-4">
+                  <div>
+                    <h1 className="text-3xl font-bold text-gray-900 mb-2">
+                      {car.year} {car.make} {car.model}
+                    </h1>
+                    <div className="flex items-center gap-3 flex-wrap">
+                      <Badge variant="outline" className="font-mono">
+                        VIN: {car.vin}
+                      </Badge>
+                      <Badge variant="outline" className="font-mono">
+                        Token ID: {car.tokenId || 'Pending'}
+                      </Badge>
+                    </div>
+                  </div>
+
+                  {car.description && (
+                    <div>
+                      <div className="text-sm font-semibold text-gray-700 mb-2">Description</div>
+                      <p className="text-gray-600 leading-relaxed">{car.description}</p>
+                    </div>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+
             {/* Car Details */}
             <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-3">
-                  <Car className="w-6 h-6" />
+              <CardHeader className="bg-gradient-to-r from-purple-50 to-blue-50">
+                <CardTitle className="flex items-center gap-3 text-purple-900">
+                  <Car className="w-6 h-6 text-purple-600" />
                   Vehicle Information
                 </CardTitle>
               </CardHeader>
 
-              <CardContent className="space-y-4">
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <div className="text-sm font-medium text-gray-500">VIN</div>
-                    <div className="font-mono text-sm">{car.vin}</div>
-                  </div>
-
-                  <div>
-                    <div className="text-sm font-medium text-gray-500">Token ID</div>
-                    <div className="font-mono text-sm">{car.tokenId || 'Pending'}</div>
-                  </div>
-
-                  <div>
-                    <div className="text-sm font-medium text-gray-500">Make</div>
-                    <div className="font-medium">{car.make}</div>
-                  </div>
-
-                  <div>
-                    <div className="text-sm font-medium text-gray-500">Model</div>
-                    <div className="font-medium">{car.model}</div>
-                  </div>
-
-                  <div>
-                    <div className="text-sm font-medium text-gray-500">Year</div>
-                    <div className="font-medium">{car.year}</div>
-                  </div>
-
-                  <div>
-                    <div className="text-sm font-medium text-gray-500">Color</div>
-                    <div className="font-medium">{car.color || 'Not specified'}</div>
-                  </div>
-
-                  {car.mileage && (
-                    <div>
-                      <div className="text-sm font-medium text-gray-500">Mileage</div>
-                      <div className="font-medium">{car.mileage.toLocaleString()} miles</div>
+              <CardContent className="space-y-6 pt-6">
+                {/* Basic Information */}
+                <div>
+                  <h3 className="text-sm font-semibold text-gray-700 mb-3 uppercase tracking-wide">Basic Information</h3>
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                    <div className="bg-gray-50 p-3 rounded-lg">
+                      <div className="text-xs font-medium text-gray-500 mb-1">Make</div>
+                      <div className="font-semibold text-gray-900">{car.make}</div>
                     </div>
-                  )}
 
-                  <div>
-                    <div className="text-sm font-medium text-gray-500">Status</div>
-                    <div className="flex items-center gap-2">
+                    <div className="bg-gray-50 p-3 rounded-lg">
+                      <div className="text-xs font-medium text-gray-500 mb-1">Model</div>
+                      <div className="font-semibold text-gray-900">{car.model}</div>
+                    </div>
+
+                    <div className="bg-gray-50 p-3 rounded-lg">
+                      <div className="text-xs font-medium text-gray-500 mb-1">Year</div>
+                      <div className="font-semibold text-gray-900">{car.year}</div>
+                    </div>
+
+                    <div className="bg-gray-50 p-3 rounded-lg">
+                      <div className="text-xs font-medium text-gray-500 mb-1">Color</div>
+                      <div className="font-semibold text-gray-900">{car.color || 'Not specified'}</div>
+                    </div>
+
+                    {car.mileage !== null && car.mileage !== undefined && (
+                      <div className="bg-gray-50 p-3 rounded-lg">
+                        <div className="text-xs font-medium text-gray-500 mb-1 flex items-center gap-1">
+                          <Gauge className="w-3 h-3" />
+                          Mileage
+                        </div>
+                        <div className="font-semibold text-gray-900">{car.mileage.toLocaleString()} miles</div>
+                      </div>
+                    )}
+
+                    <div className="bg-gray-50 p-3 rounded-lg">
+                      <div className="text-xs font-medium text-gray-500 mb-1">Status</div>
                       <VerificationBadge status={car.verificationStatus} size="sm" />
                     </div>
                   </div>
                 </div>
 
-                {car.description && (
+                {/* Technical Specifications */}
+                {(car.engineType || car.transmission || car.fuelType) && (
                   <div>
-                    <div className="text-sm font-medium text-gray-500 mb-2">Description</div>
-                    <div className="text-sm">{car.description}</div>
+                    <h3 className="text-sm font-semibold text-gray-700 mb-3 uppercase tracking-wide flex items-center gap-2">
+                      <Settings className="w-4 h-4" />
+                      Technical Specifications
+                    </h3>
+                    <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                      {car.engineType && (
+                        <div className="bg-blue-50 p-3 rounded-lg border border-blue-200">
+                          <div className="text-xs font-medium text-blue-600 mb-1">Engine Type</div>
+                          <div className="font-semibold text-gray-900">{car.engineType}</div>
+                        </div>
+                      )}
+
+                      {car.transmission && (
+                        <div className="bg-purple-50 p-3 rounded-lg border border-purple-200">
+                          <div className="text-xs font-medium text-purple-600 mb-1">Transmission</div>
+                          <div className="font-semibold text-gray-900">{car.transmission}</div>
+                        </div>
+                      )}
+
+                      {car.fuelType && (
+                        <div className="bg-green-50 p-3 rounded-lg border border-green-200">
+                          <div className="text-xs font-medium text-green-600 mb-1 flex items-center gap-1">
+                            <Fuel className="w-3 h-3" />
+                            Fuel Type
+                          </div>
+                          <div className="font-semibold text-gray-900">{car.fuelType}</div>
+                        </div>
+                      )}
+                    </div>
                   </div>
                 )}
 
                 {/* Owner Information */}
                 <div className="border-t pt-4">
-                  <div className="flex items-center gap-2 mb-2">
+                  <h3 className="text-sm font-semibold text-gray-700 mb-3 uppercase tracking-wide flex items-center gap-2">
                     <User className="w-4 h-4" />
-                    <span className="text-sm font-medium">Owner</span>
-                  </div>
-                  <div className="text-sm text-gray-600">
-                    {car.creator?.firstName || car.creator?.lastName
-                      ? `${car.creator.firstName || ''} ${car.creator.lastName || ''}`.trim()
-                      : formatAddress(car.ownerAddress)
-                    }
+                    Owner Information
+                  </h3>
+                  <div className="bg-gradient-to-r from-purple-50 to-blue-50 p-4 rounded-lg border border-purple-200">
+                    <div className="text-sm text-gray-600 mb-1">Current Owner</div>
+                    <div className="font-mono font-semibold text-gray-900">
+                      {car.creator?.firstName || car.creator?.lastName
+                        ? `${car.creator.firstName || ''} ${car.creator.lastName || ''}`.trim()
+                        : formatAddress(car.ownerAddress)
+                      }
+                    </div>
+                    <div className="text-xs text-gray-500 mt-2 font-mono">
+                      {car.ownerAddress}
+                    </div>
                   </div>
                 </div>
 
-                {/* Metadata URI */}
-                {car.metadataURI && (
-                  <div className="border-t pt-4">
-                    <div className="text-sm font-medium text-gray-500 mb-2">Metadata</div>
-                    <div className="flex items-center gap-2">
-                      <code className="text-xs bg-gray-100 px-2 py-1 rounded">
-                        {car.metadataURI}
-                      </code>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => navigator.clipboard.writeText(car.metadataURI)}
-                      >
-                        <Copy className="w-3 h-3" />
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => window.open(car.metadataURI, '_blank')}
-                      >
-                        <ExternalLink className="w-3 h-3" />
-                      </Button>
+                {/* Blockchain Information */}
+                <div className="border-t pt-4">
+                  <h3 className="text-sm font-semibold text-gray-700 mb-3 uppercase tracking-wide">Blockchain Information</h3>
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                      <span className="text-sm text-gray-600">Token ID</span>
+                      <Badge variant="outline" className="font-mono">{car.tokenId || 'Pending'}</Badge>
                     </div>
+                    
+                    <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                      <span className="text-sm text-gray-600">Network</span>
+                      <Badge variant="outline">Linea Testnet</Badge>
+                    </div>
+
+                    <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                      <span className="text-sm text-gray-600">Minted On</span>
+                      <span className="text-sm font-medium">{formatDate(car.createdAt)}</span>
+                    </div>
+
+                    {car.metadataURI && (
+                      <div className="p-3 bg-gray-50 rounded-lg">
+                        <div className="text-sm text-gray-600 mb-2">Metadata URI</div>
+                        <div className="flex items-center gap-2">
+                          <code className="text-xs bg-white px-2 py-1 rounded border flex-1 overflow-x-auto">
+                            {car.metadataURI}
+                          </code>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => navigator.clipboard.writeText(car.metadataURI)}
+                            title="Copy to clipboard"
+                          >
+                            <Copy className="w-3 h-3" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => window.open(car.metadataURI, '_blank')}
+                            title="Open in new tab"
+                          >
+                            <ExternalLink className="w-3 h-3" />
+                          </Button>
+                        </div>
+                      </div>
+                    )}
                   </div>
-                )}
+                </div>
               </CardContent>
             </Card>
 
             {/* Documents */}
             {car.documents && car.documents.length > 0 && (
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <FileText className="w-5 h-5" />
-                    Documents
+              <Card className="border-2 border-blue-200">
+                <CardHeader className="bg-gradient-to-r from-blue-50 to-indigo-50">
+                  <CardTitle className="flex items-center gap-2 text-blue-900">
+                    <FileText className="w-5 h-5 text-blue-600" />
+                    Documents ({car.documents.length})
                   </CardTitle>
                 </CardHeader>
-                <CardContent>
-                  <div className="space-y-2">
-                    {car.documents?.map((doc: any, index: number) => (
-                      <div key={index} className="flex items-center gap-2 p-2 border rounded">
-                        <FileText className="w-4 h-4" />
-                        <span className="text-sm">{doc.name || `Document ${index + 1}`}</span>
-                        <Button variant="ghost" size="sm" asChild>
-                          <a href={doc.url} target="_blank" rel="noopener noreferrer">
-                            <ExternalLink className="w-3 h-3" />
-                          </a>
-                        </Button>
+                <CardContent className="space-y-2 pt-4">
+                  {car.documents?.map((doc: any, index: number) => (
+                    <div 
+                      key={index} 
+                      className="flex items-center justify-between gap-2 p-3 bg-gray-50 hover:bg-gray-100 border border-gray-200 rounded-lg transition-all"
+                    >
+                      <div className="flex items-center gap-2 flex-1 min-w-0">
+                        <div className="bg-blue-100 p-2 rounded">
+                          <FileText className="w-4 h-4 text-blue-600" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="text-sm font-medium text-gray-900 truncate">
+                            {doc.name || doc.filename || `Document ${index + 1}`}
+                          </div>
+                          {doc.hash && (
+                            <div className="text-xs text-gray-500 font-mono truncate">
+                              {doc.hash.substring(0, 20)}...
+                            </div>
+                          )}
+                        </div>
                       </div>
-                    ))}
-                  </div>
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        asChild
+                        className="flex-shrink-0"
+                      >
+                        <a href={doc.url} target="_blank" rel="noopener noreferrer">
+                          <ExternalLink className="w-3 h-3 mr-1" />
+                          View
+                        </a>
+                      </Button>
+                    </div>
+                  ))}
                 </CardContent>
               </Card>
             )}
@@ -427,56 +565,79 @@ export default function CarDetailPage() {
               </CardContent>
             </Card>
 
-            {/* Car Specifications */}
-            <Card>
+            {/* Quick Stats */}
+            <Card className="border-2 border-purple-200 bg-gradient-to-br from-purple-50 to-blue-50">
               <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Settings className="w-5 h-5" />
-                  Specifications
+                <CardTitle className="flex items-center gap-2 text-purple-900">
+                  <Settings className="w-5 h-5 text-purple-600" />
+                  Quick Stats
                 </CardTitle>
               </CardHeader>
 
               <CardContent className="space-y-3">
+                {car.mileage !== null && car.mileage !== undefined && (
+                  <div className="flex justify-between items-center p-2 bg-white rounded-lg">
+                    <span className="text-sm text-gray-600 flex items-center gap-1">
+                      <Gauge className="w-4 h-4" />
+                      Mileage
+                    </span>
+                    <span className="text-sm font-semibold">{car.mileage.toLocaleString()} mi</span>
+                  </div>
+                )}
+
                 {car.engineType && (
-                  <div className="flex justify-between">
-                    <span className="text-sm text-gray-600">Engine</span>
-                    <span className="text-sm font-medium">{car.engineType}</span>
+                  <div className="flex justify-between items-center p-2 bg-white rounded-lg">
+                    <span className="text-sm text-gray-600 flex items-center gap-1">
+                      <Settings className="w-4 h-4" />
+                      Engine
+                    </span>
+                    <span className="text-sm font-semibold">{car.engineType}</span>
                   </div>
                 )}
 
                 {car.transmission && (
-                  <div className="flex justify-between">
+                  <div className="flex justify-between items-center p-2 bg-white rounded-lg">
                     <span className="text-sm text-gray-600">Transmission</span>
-                    <span className="text-sm font-medium">{car.transmission}</span>
+                    <span className="text-sm font-semibold">{car.transmission}</span>
                   </div>
                 )}
 
                 {car.fuelType && (
-                  <div className="flex justify-between">
-                    <span className="text-sm text-gray-600">Fuel Type</span>
-                    <span className="text-sm font-medium">{car.fuelType}</span>
+                  <div className="flex justify-between items-center p-2 bg-white rounded-lg">
+                    <span className="text-sm text-gray-600 flex items-center gap-1">
+                      <Fuel className="w-4 h-4" />
+                      Fuel Type
+                    </span>
+                    <span className="text-sm font-semibold">{car.fuelType}</span>
                   </div>
                 )}
 
-                {car.location && (
-                  <div className="flex justify-between">
-                    <span className="text-sm text-gray-600">Location</span>
-                    <span className="text-sm font-medium">{car.location}</span>
+                {car.color && (
+                  <div className="flex justify-between items-center p-2 bg-white rounded-lg">
+                    <span className="text-sm text-gray-600 flex items-center gap-1">
+                      <Palette className="w-4 h-4" />
+                      Color
+                    </span>
+                    <span className="text-sm font-semibold">{car.color}</span>
                   </div>
                 )}
 
-                <div className="flex justify-between">
-                  <span className="text-sm text-gray-600">Listed</span>
-                  <Badge variant={car.isListed ? 'default' : 'secondary'}>
-                    {car.isListed ? 'Yes' : 'No'}
-                  </Badge>
-                </div>
+                <div className="border-t pt-3 space-y-2">
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm text-gray-600">Listed</span>
+                    <Badge variant={car.isListed ? 'default' : 'secondary'} className="font-semibold">
+                      {car.isListed ? '✓ Yes' : '✗ No'}
+                    </Badge>
+                  </div>
 
-                <div className="flex justify-between">
-                  <span className="text-sm text-gray-600">In Escrow</span>
-                  <Badge variant={car.isEscrow ? 'default' : 'secondary'}>
-                    {car.isEscrow ? 'Yes' : 'No'}
-                  </Badge>
+                  {car.isEscrow && (
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm text-gray-600">In Escrow</span>
+                      <Badge variant="outline" className="text-orange-600 border-orange-600 font-semibold">
+                        🔒 Protected
+                      </Badge>
+                    </div>
+                  )}
                 </div>
               </CardContent>
             </Card>

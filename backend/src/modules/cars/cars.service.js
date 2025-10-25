@@ -1,4 +1,6 @@
 import { Op } from 'sequelize';
+import db from '../../config/db.config.cjs';
+const { sequelize } = db;
 import { Car, User, Transaction } from '../../database/models/index.js';
 import ipfsService from '../../config/ipfs.config.js';
 import web3Service from '../../utils/web3.js';
@@ -269,24 +271,29 @@ class CarsService {
       console.log('User found:', user.id, user.walletAddress);
 
       // Query real cars from database - show cars owned by user (not just created)
+      // Use Sequelize.where with Sequelize.fn for case-insensitive comparison
       const whereClause = {
-        ownerAddress: user.walletAddress.toLowerCase()
+        [Op.and]: [
+          sequelize.where(
+            sequelize.fn('LOWER', sequelize.col('ownerAddress')),
+            sequelize.fn('LOWER', user.walletAddress)
+          )
+        ]
       };
 
       // Apply filters
       if (filters.verificationStatus) {
-        whereClause.verificationStatus = filters.verificationStatus;
+        whereClause[Op.and].push({ verificationStatus: filters.verificationStatus });
       }
 
       if (filters.isListed !== undefined) {
-        whereClause.isListed = filters.isListed;
+        whereClause[Op.and].push({ isListed: filters.isListed });
       }
 
       const limit = filters.limit || 50;
       const offset = filters.offset || 0;
 
-      console.log('Querying cars with whereClause:', JSON.stringify(whereClause));
-      console.log('User wallet address:', user.walletAddress);
+      console.log('Querying cars for wallet:', user.walletAddress);
       
       const cars = await Car.findAll({
         where: whereClause,
