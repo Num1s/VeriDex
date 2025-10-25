@@ -193,6 +193,8 @@ class CarsService {
    */
   async getCar(carId, userId = null) {
     try {
+      console.log('getCar called with carId:', carId, 'userId:', userId);
+      
       const car = await Car.findByPk(carId, {
         include: [
           {
@@ -204,17 +206,23 @@ class CarsService {
       });
 
       if (!car) {
+        console.log('Car not found:', carId);
         throw new Error('Car not found');
       }
 
-      // Check ownership if user provided
+      console.log('Car found:', car.id, 'Owner:', car.ownerAddress);
+
+      // Check if user is owner (optional, for additional metadata)
+      let isOwner = false;
       if (userId) {
         const user = await User.findByPk(userId);
-        if (car.ownerAddress.toLowerCase() !== user.walletAddress.toLowerCase()) {
-          throw new Error('Access denied');
+        if (user) {
+          isOwner = car.ownerAddress.toLowerCase() === user.walletAddress.toLowerCase();
+          console.log('User is owner:', isOwner);
         }
       }
 
+      // Return all car data (public view)
       return {
         id: car.id,
         tokenId: car.tokenId,
@@ -242,6 +250,7 @@ class CarsService {
         isEscrow: car.isEscrow,
         escrowDealId: car.escrowDealId,
         creator: car.creator,
+        isOwner, // Add ownership flag
         createdAt: car.createdAt,
         updatedAt: car.updatedAt,
       };

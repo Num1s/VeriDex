@@ -48,19 +48,44 @@ export default function CarDetailPage() {
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
 
   // Fetch car details
-  const { data: carResponse, isLoading } = useQuery({
+  const { data: carResponse, isLoading, error: carError } = useQuery({
     queryKey: ['car', carId],
-    queryFn: () => carsAPI.getCar(carId),
+    queryFn: async () => {
+      console.log('🔍 Fetching car details for ID:', carId);
+      const response = await carsAPI.getCar(carId);
+      console.log('🚗 Car API response:', response);
+      console.log('🚗 Car data:', response?.data);
+      return response;
+    },
     enabled: !!carId,
   });
 
-  const car = carResponse?.data as any; // Car data from API
+  // Debug logging
+  useEffect(() => {
+    if (carResponse) {
+      console.log('📦 carResponse:', carResponse);
+      console.log('📦 carResponse.data:', carResponse.data);
+      console.log('📦 carResponse.data.data:', carResponse.data?.data);
+    }
+    if (carError) {
+      console.error('❌ Car error:', carError);
+    }
+  }, [carResponse, carError]);
+
+  const car = carResponse?.data?.data as any; // Car data from API response
 
   // Check ownership and listing status
   useEffect(() => {
-    if (car && address && car.ownerAddress && car.isListed !== undefined) {
-      setIsOwner(car.ownerAddress.toLowerCase() === address.toLowerCase());
+    if (car) {
+      // Use isOwner from API if available, otherwise calculate
+      const ownerStatus = car.isOwner !== undefined 
+        ? car.isOwner 
+        : (address && car.ownerAddress ? car.ownerAddress.toLowerCase() === address.toLowerCase() : false);
+      
+      setIsOwner(ownerStatus);
       setIsListed(car.isListed || false);
+      
+      console.log('🔍 Car Detail - Owner status:', ownerStatus, 'Listed:', car.isListed);
     }
   }, [car, address]);
 

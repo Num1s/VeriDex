@@ -38,7 +38,7 @@ class CarsController {
   async getCar(req, res, next) {
     try {
       const { id } = req.params;
-      const { userId } = req.user; // Optional for public cars
+      const userId = req.user ? req.user.userId : null; // Optional for public access
 
       const car = await carsService.getCar(id, userId);
 

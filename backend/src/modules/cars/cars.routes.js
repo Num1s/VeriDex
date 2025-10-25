@@ -68,9 +68,9 @@ router.get('/vin/:vin', optionalAuth, carsController.getCarByVin);
 /**
  * @route GET /api/cars/:id
  * @desc Get car details
- * @access Private (owner only)
+ * @access Public (with optional auth for owner-specific data)
  */
-router.get('/:id', authenticate, carsController.getCar);
+router.get('/:id', optionalAuth, carsController.getCar);
 
 /**
  * @route PUT /api/cars/:id
