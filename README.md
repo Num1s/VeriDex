@@ -1,11 +1,11 @@
 # 🚗 VERIDEX - Gas-Free Car Tokenization Platform
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![License: GPL](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/GPL)
 [![Next.js](https://img.shields.io/badge/Next.js-14-black)](https://nextjs.org/)
 [![Solidity](https://img.shields.io/badge/Solidity-0.8.19-363636)](https://soliditylang.org/)
 [![Hardhat](https://img.shields.io/badge/Hardhat-2.22.0-yellow)](https://hardhat.org/)
 
-> Tokenize your car as an NFT and trade with **zero gas fees** using Status Network and Linea zkEVM.
+> Tokenize your property as an NFT and trade with **zero gas fees** using Status Network and Linea zkEVM.
 
 
 Veridex - is a decentralized profile platform where users can verify and showcase their real achievements through on-chain NFT badges.  
@@ -30,7 +30,7 @@ SkillProof aims to build a universal Web3 résumé for students and professional
 
 ## ✨ Features
 
-- 🚗 **Car Tokenization**: Turn your car into an ERC-721 NFT
+- 🚗 **Property Tokenization**: Turn your property into an ERC-721 NFT
 - ⛽ **Gas-Free Transactions**: Zero gas fees using EIP-2771 meta-transactions
 - 🔒 **VIN Verification**: Prevent duplicate cars with VIN validation
 - 💰 **ETH-Based Trading**: Buy and sell cars with ETH (no platform token)
