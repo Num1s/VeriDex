@@ -1,4 +1,4 @@
-# 🚗 AutoToken - Gas-Free Car Tokenization Platform
+# 🚗 VERIDEX - Gas-Free Car Tokenization Platform
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Next.js](https://img.shields.io/badge/Next.js-14-black)](https://nextjs.org/)
@@ -59,8 +59,8 @@ SkillProof aims to build a universal Web3 résumé for students and professional
 ### 1. Clone and Install
 
 ```bash
-git clone https://github.com/autotoken/autotoken
-cd auto-token
+git clone https://github.com/Num1s/VeriDex
+cd VeriDex
 
 # Install all dependencies
 npm install
@@ -124,7 +124,7 @@ Navigate to http://localhost:3000 and start tokenizing cars! 🎉
 ## 📁 Project Structure
 
 ```
-auto-token/
+VeriDex/
 ├── smart-contracts/          # Solidity smart contracts
 │   ├── contracts/           # Contract source files
 │   ├── scripts/             # Deployment scripts
@@ -357,10 +357,6 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ## 🔗 Links
 
 - **Website**: https://autotoken.com
-- **Documentation**: https://docs.autotoken.com
-- **Discord**: https://discord.gg/autotoken
-- **Twitter**: https://twitter.com/autotoken
-- **GitHub**: https://github.com/autotoken/autotoken
 
 ## ⚠️ Disclaimer
 
@@ -370,5 +366,5 @@ This is experimental software. Use at your own risk. Always verify transactions 
 
 **Built with ❤️ for the future of automotive ownership**
 
-*AutoToken - Making car ownership digital, global, and gas-free.*
+*VeriDex - Making property ownership digital, global, and gas-free.*
 
