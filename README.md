@@ -30,7 +30,7 @@ VeriDex создает новую модель доверия: активы, п�
 
 ## 🎥 Demo Video
 
-[Watch the demo here](#) <!-- Replace # with your demo link -->
+[Watch the demo here](https://www.youtube.com/watch?v=xOW9lXJ4YCY) <!-- Replace # with your demo link -->
 
 ---
 
