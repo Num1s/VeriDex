@@ -16,7 +16,8 @@ import {
   Shield,
   Menu,
   X,
-  Zap
+  Zap,
+  Play
 } from 'lucide-react';
 
 export default function Header() {
@@ -28,6 +29,8 @@ export default function Header() {
   const navigation = [
     { name: 'Asset Registry', href: '/', icon: Car },
     { name: 'Tokenize', href: '/mint', icon: Plus },
+    { name: 'Marketplace', href: '/marketplace', icon: ShoppingBag },
+    { name: 'Simulation', href: '/simulation', icon: Play },
     ...(isAuthenticated ? [{ name: 'My Assets', href: '/profile', icon: User }] : []),
     ...(isAdmin ? [{ name: 'Verification', href: '/admin/verify', icon: Shield }] : []),
   ];

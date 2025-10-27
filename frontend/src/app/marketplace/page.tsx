@@ -11,8 +11,9 @@ import { useWalletAuth } from '../../hooks/useWalletAuth';
 import { useGasless } from '../../hooks/useGasless';
 import { useToast } from '../../hooks/useToast';
 import PurchaseModal from '../../components/PurchaseModal';
+import SimulationModal from '../../components/SimulationModal';
 import { formatPrice } from '../../utils/formatters';
-import { ShoppingBag, TrendingUp, DollarSign, Users } from 'lucide-react';
+import { ShoppingBag, TrendingUp, DollarSign, Users, Play } from 'lucide-react';
 
 export const dynamic = 'force-dynamic';
 
@@ -51,9 +52,21 @@ export default function MarketplacePage() {
             <h1 className="text-3xl font-bold text-gray-900 mb-4">
               Car Marketplace
             </h1>
-            <p className="text-lg text-gray-600">
+            <p className="text-lg text-gray-600 mb-6">
               Buy and sell verified cars with zero gas fees
             </p>
+            
+            {/* Simulation Button */}
+            <div className="flex justify-center">
+              <SimulationModal 
+                trigger={
+                  <div className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all duration-200 shadow-lg hover:shadow-xl">
+                    <Play className="w-5 h-5" />
+                    <span className="font-medium">Try Trading Simulation</span>
+                  </div>
+                }
+              />
+            </div>
           </div>
 
           {/* Stats Cards */}

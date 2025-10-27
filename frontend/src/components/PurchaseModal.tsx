@@ -219,3 +219,4 @@ export default function PurchaseModal({ listing, trigger, onSuccess }: PurchaseM
     </Dialog>
   );
 }
+

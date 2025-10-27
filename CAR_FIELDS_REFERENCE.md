@@ -154,3 +154,4 @@ This document describes all fields available in the Car NFT system and where the
 - [ ] Add QR code for physical verification
 - [ ] Add NFT metadata standards (ERC-721)
 
+

@@ -25,12 +25,21 @@ const lineaSepolia = {
 // Create config once to avoid re-initialization
 const projectId = process.env.NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID || '2c4f1e5c5e9c4a9c8e9c3e5f4a9c8e9c';
 
-export const config = getDefaultConfig({
-  appName: 'AutoToken',
-  projectId,
-  chains: [lineaSepolia],
-  ssr: true,
-});
+// Create config with singleton pattern to prevent multiple initializations
+let configInstance: any = null;
 
+export const getConfig = () => {
+  if (!configInstance) {
+    configInstance = getDefaultConfig({
+      appName: 'AutoToken',
+      projectId,
+      chains: [lineaSepolia],
+      ssr: true,
+    });
+  }
+  return configInstance;
+};
+
+export const config = getConfig();
 export const chains = [lineaSepolia];
 
