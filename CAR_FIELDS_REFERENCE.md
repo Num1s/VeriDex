@@ -155,3 +155,4 @@ This document describes all fields available in the Car NFT system and where the
 - [ ] Add NFT metadata standards (ERC-721)
 
 
+
